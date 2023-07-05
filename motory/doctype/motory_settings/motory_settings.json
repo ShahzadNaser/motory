@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-09-01 09:31:14.212690",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "damage_warehouse_type",
+  "car_accessories_detail",
+  "car_predelivery_inspection_checklist"
+ ],
+ "fields": [
+  {
+   "fieldname": "damage_warehouse_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Damage Warehouse Type",
+   "options": "Warehouse Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "car_accessories_detail",
+   "fieldtype": "Table",
+   "label": "Car Accessories Detail",
+   "options": "Car Accessories Detail",
+   "reqd": 1
+  },
+  {
+   "fieldname": "car_predelivery_inspection_checklist",
+   "fieldtype": "Table",
+   "label": "Car PreDelivery Inspection Checklist",
+   "options": "Car PreDelivery Inspection Checklist",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2022-09-01 09:45:42.576249",
+ "modified_by": "Administrator",
+ "module": "Motory",
+ "name": "Motory Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Stock User",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Stock Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Sales User",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
