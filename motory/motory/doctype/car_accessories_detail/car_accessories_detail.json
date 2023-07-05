@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-09-01 09:42:39.238937",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "accessory",
+  "is_available"
+ ],
+ "fields": [
+  {
+   "allow_on_submit": 1,
+   "fieldname": "accessory",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Accessory",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "is_available",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Available",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "migration_hash": "2ac445d2035dffb9ee966dc7e357ad9b",
+ "modified": "2023-07-05 20:20:46.586624",
+ "modified_by": "Administrator",
+ "module": "Motory",
+ "name": "Car Accessories Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
