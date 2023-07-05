@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include motory *.css
+recursive-include motory *.csv
+recursive-include motory *.html
+recursive-include motory *.ico
+recursive-include motory *.js
+recursive-include motory *.json
+recursive-include motory *.md
+recursive-include motory *.png
+recursive-include motory *.py
+recursive-include motory *.svg
+recursive-include motory *.txt
+recursive-exclude motory *.pyc

@@ -1,0 +1,7 @@
+## Motory
+
+motory
+
+#### License
+
+MIT
