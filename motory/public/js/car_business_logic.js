@@ -1,7 +1,7 @@
 frappe.ui.form.on(cur_frm.doctype, {
 	party_name:function(frm) {
 		if ( frm.doc.quotation_to=='Customer') {
-			frappe.db.get_value('Customer', frm.doc.party_name, 'is_bank_cf')
+         	frappe.db.get_value('Customer', frm.doc.party_name, 'is_bank_cf')
 			.then(r => {
 				let is_bank=r.message.is_bank_cf
 				if (is_bank==1) {
@@ -11,9 +11,9 @@ frappe.ui.form.on(cur_frm.doctype, {
 					frm.set_df_property('sub_customer_cf', 'read_only', 1);
 					frm.doc.sub_customer_name_cf=''
 				}
-			})				
+			})
 		}
-	}, 
+	},
 	customer:function(frm) {
 			frappe.db.get_value('Customer', frm.doc.customer, 'is_bank_cf')
 			.then(r => {
@@ -25,8 +25,8 @@ frappe.ui.form.on(cur_frm.doctype, {
 					frm.set_df_property('sub_customer_cf', 'read_only', 1);
 					frm.doc.sub_customer_name_cf=''
 				}
-			})				
-	},       
+			})
+	},
     onload: function (frm) {
         cur_frm.set_query("sub_customer_cf", function() {
 			return {
@@ -66,10 +66,10 @@ frappe.ui.form.on(cur_frm.doctype+" Item", {
         if (d.serial_no_cf && (['Sales Invoice','Delivery Note'].includes(frm.doctype))) {
             frappe.model.set_value(cdt, cdn, 'serial_no', d.serial_no_cf);
         }
-    },    
+    },
     item_type_cf: function (frm, cdt, cdn) {
         set_rate_for_second_hand_car(frm, cdt, cdn)
-    }    
+    }
 })
 
 function set_rate_for_second_hand_car(frm, cdt, cdn) {
@@ -103,10 +103,10 @@ function set_rate_for_second_hand_car(frm, cdt, cdn) {
                         let serial_no_url = '<a href="/app/serial-no/' + d.serial_no_cf + '">' + d.serial_no_cf + '</a>'
                         if (expense_entry_urls!='') {
                             frappe.msgprint(__('Serial No: {0} has incoming rate {1} and GP% {2} and Expense Entry total as {3}. <br> Hence rate is set as <b>{4}</b> <br> Expense Entries considered are {5}',
-                            [serial_no_url, purchase_rate, gp_percent_cf, expense_entry_total, rate, expense_entry_urls]));                            
+                            [serial_no_url, purchase_rate, gp_percent_cf, expense_entry_total, rate, expense_entry_urls]));
                         } else {
                             frappe.msgprint(__('Serial No: {0} has incoming rate {1} and GP% {2} and Expense Entry total as {3}. <br> Hence rate is set as <b>{4}</b>',
-                            [serial_no_url, purchase_rate, gp_percent_cf, expense_entry_total, rate]));                            
+                            [serial_no_url, purchase_rate, gp_percent_cf, expense_entry_total, rate]));
                         }
                     }
                 })
