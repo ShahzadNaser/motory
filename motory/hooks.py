@@ -9,12 +9,14 @@ app_color = "grey"
 app_email = "shahzadnaser1122@gmail.com"
 app_license = "MIT"
 
+
 # Includes in <head>
 # ------------------
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/motory/css/motory.css"
 # app_include_js = "/assets/motory/js/motory.js"
+app_include_js =  ["/assets/motory/js/markerjs2.js"]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/motory/css/motory.css"
@@ -31,8 +33,16 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_js = {
+	# "Item" : "public/js/item.js",
+	"Quotation" : ["public/js/car_business_logic.js","public/js/quotation.js"],
+	"Sales Order" : ["public/js/car_business_logic.js","public/js/sales_order.js"],
+	"Sales Invoice" : ["public/js/car_business_logic.js","public/js/sales_invoice.js"],
+	"Delivery Note" : ["public/js/car_business_logic.js","public/js/delivery_note.js"],
+	"Purchase Receipt":"public/js/purchase_receipt.js",
+	"Purchase Order":"public/js/purchase_order.js"
+	}
+doctype_list_js = {"Serial No" : "public/js/serial_no_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -58,6 +68,12 @@ app_license = "MIT"
 
 # before_install = "motory.install.before_install"
 # after_install = "motory.install.after_install"
+
+# Uninstallation
+# ------------
+
+# before_uninstall = "motory.uninstall.before_uninstall"
+# after_uninstall = "motory.uninstall.after_uninstall"
 
 # Desk Notifications
 # ------------------
@@ -89,34 +105,76 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
-# }
+doc_events = {
+	"Serial No": { 
+		"validate": "motory.api.update_car_status"
+		},
+	"Stock Entry": { 
+		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_serial_no_and_qty"],
+		"on_submit": ["motory.api.update_car_status","motory.api.copy_car_fields_to_serial_no_doc"],
+		"on_update_after_submit" :  "motory.api.sync_accessories_inspection_details",
+		"on_cancel": "motory.api.update_car_status"
+		},
+	"Purchase Receipt": { 
+		"before_validate":"motory.api.copy_car_serial_to_vin",
+		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_single_serial_no"],
+		"on_submit": ["motory.api.update_car_status","motory.api.copy_car_fields_to_serial_no_doc"],
+		"on_update_after_submit": "motory.api.sync_accessories_inspection_details",
+		"on_cancel": "motory.api.update_car_status"
+	},
+	"Purchase Invoice": { 
+		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_single_serial_no"],
+		"on_submit": ["motory.api.update_car_status","motory.api.copy_car_fields_to_serial_no_doc"],
+		"on_cancel": "motory.api.update_car_status"
+	},
+	"Sales Order": { 
+		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse"],
+		"on_submit": "motory.api.update_car_status",
+		"on_cancel": "motory.api.update_car_status"
+	},
+	"Sales Invoice": { 
+		"before_validate":"motory.api.copy_car_serial_to_vin",
+		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse"],
+		"on_submit":"motory.api.update_car_status",
+		"on_cancel": "motory.api.update_car_status"
+		},
+	"Delivery Note": { 
+		"before_validate":"motory.api.copy_car_serial_to_vin",
+		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_color","motory.api.validate_damaged_warehouse","motory.api.fetch_used_car_details"],
+		"on_submit": "motory.api.update_car_status",
+		"on_cancel": "motory.api.update_car_status"
+	},
+	"Quotation": { 
+	"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse"],
+		"on_submit": "motory.api.update_car_status",
+		"on_cancel": "motory.api.update_car_status"
+		},
+	"Expense Entry": { 
+		"on_submit": "motory.api.update_expense_in_serial_no",
+		"on_cancel": "motory.api.update_expense_in_serial_no"
+		},		
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"motory.tasks.all"
-# 	],
-# 	"daily": [
-# 		"motory.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"motory.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"motory.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"motory.tasks.monthly"
-# 	]
-# }
+scheduler_events = {
+	# "all": [
+	# 	"motory.tasks.all"
+	# ],
+	"daily": [
+		"motory.api.update_car_status_to_available_for_expired_quotations"
+	],
+	# "hourly": [
+	# 	"motory.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"motory.tasks.weekly"
+	# ]
+	# "monthly": [
+	# 	"motory.tasks.monthly"
+	# ]
+}
 
 # Testing
 # -------
@@ -173,3 +231,10 @@ user_data_fields = [
 # 	"motory.auth.validate"
 # ]
 
+# Translation
+# --------------------------------
+
+# Make link fields search translated document names for these DocTypes
+# Recommended only for DocTypes which have limited documents with untranslated names
+# For example: Role, Gender, etc.
+# translated_search_doctypes = []
