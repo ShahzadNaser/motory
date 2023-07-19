@@ -4,7 +4,7 @@ import frappe
 from frappe import _
 import json
 from frappe.utils import get_link_to_form
-from frappe.utils import  getdate, today,flt
+from frappe.utils import  getdate, today, flt, get_datetime
 
 @frappe.whitelist()
 def update_valid_till(quotation,valid_till):
@@ -93,6 +93,8 @@ def copy_car_fields_to_serial_no_doc(self,method):
 						checklist_row=serial_no_doc.append('car_predelivery_inspection_checklist_cf',{})
 						checklist_row.predelivery_check=checklist.predelivery_check
 						checklist_row.is_checked=checklist.is_checked	
+				if item.get("comments"):
+					serial_no_doc.append("observation",{"posting_date":get_datetime(),"added_by":frappe.session.user,"reference_doctype":self.doctype,"observation":item.get("comments"),"reference_id":self.name})
 				serial_no_doc.flags.ignore_validate = True					
 				serial_no_doc.save(ignore_permissions=True)				
 				frappe.msgprint(_("VIN Number(Serial No) {0} all car fields are updated"
@@ -150,62 +152,110 @@ def fetch_accessories_inspection_details(self,method):
 def change_serial_no_car_status_for_serial_no_cf(self,new_car_status):
 	for item in self.get("items"):
 		if item.serial_no_cf:
-			previous_car_status_cf=frappe.db.get_value('Serial No', item.serial_no_cf, 'car_status_cf') or None
-			frappe.db.set_value('Serial No', item.serial_no_cf, 'car_status_cf', new_car_status)
-			frappe.msgprint(_("VIN Number(Serial No) {0} status is changed from {1} to {2}"
-			.format(get_link_to_form('Serial No', item.serial_no_cf),previous_car_status_cf,new_car_status)), alert=True) 	
+			# previous_car_status_cf=frappe.db.get_value('Serial No', item.serial_no_cf, 'car_status_cf') or None
+			# frappe.db.set_value('Serial No', item.serial_no_cf, 'car_status_cf', new_car_status)
+
+			if frappe.db.exists('Serial No', item.serial_no_cf):
+				serial_no_doc=frappe.get_doc('Serial No',item.serial_no_cf)
+				previous_car_status_cf = serial_no_doc.car_status_cf
+
+				serial_no_doc.append("status_log",{"posting_date":get_datetime(),"updated_by":frappe.session.user,"reference_doctype":self.doctype,
+					"reference_id":self.name,"old_status":previous_car_status_cf,"new_status":new_car_status})
+				serial_no_doc.car_status_cf = new_car_status
+
+				serial_no_doc.flags.ignore_validate = True					
+				serial_no_doc.save(ignore_permissions=True)
+
+
+				frappe.msgprint(_("VIN Number(Serial No) {0} status is changed from {1} to {2}"
+				.format(get_link_to_form('Serial No', item.serial_no_cf),previous_car_status_cf,new_car_status)), alert=True) 	
 
 def change_serial_no_car_status_for_serial_nos(self,new_car_status):
 	for item in self.get("items"):
 		serial_nos=get_serial_nos(item.serial_no)
 		if len(serial_nos)>0:
 			serial_no=serial_nos[0]
-			previous_car_status_cf=frappe.db.get_value('Serial No', serial_no, 'car_status_cf') or None
-			frappe.db.set_value('Serial No', serial_no, 'car_status_cf',new_car_status)
-			frappe.msgprint(_("VIN Number(Serial No) {0} status is changed from {1} to {2}"
-			.format(get_link_to_form('Serial No', serial_no),previous_car_status_cf,new_car_status)), alert=True) 	
+			# previous_car_status_cf=frappe.db.get_value('Serial No', serial_no, 'car_status_cf') or None
+			# frappe.db.set_value('Serial No', serial_no, 'car_status_cf',new_car_status)
+			if frappe.db.exists('Serial No', serial_no):
+				serial_no_doc=frappe.get_doc('Serial No',serial_no)
+				previous_car_status_cf = serial_no_doc.car_status_cf
+
+				serial_no_doc.append("status_log",{"posting_date":get_datetime(),"updated_by":frappe.session.user,"reference_doctype":self.doctype,
+					"reference_id":self.name,"old_status":previous_car_status_cf,"new_status":new_car_status})
+				serial_no_doc.car_status_cf = new_car_status
+
+				serial_no_doc.flags.ignore_validate = True					
+				serial_no_doc.save(ignore_permissions=True)
+
+				frappe.msgprint(_("VIN Number(Serial No) {0} status is changed from {1} to {2}"
+				.format(get_link_to_form('Serial No', serial_no),previous_car_status_cf,new_car_status)), alert=True) 	
 
 def change_serial_no_car_status_to_available_or_damage_for_serial_nos(self):
 	damage_warehouse_type = frappe.db.get_single_value('Motory Settings', 'damage_warehouse_type')
 	for item in self.get("items"):
 		serial_nos=get_serial_nos(item.serial_no)
-		print('1'*100)
-		print(serial_nos)
+
 		if len(serial_nos)>0:
 			serial_no=serial_nos[0]	
-			warehouse=frappe.db.get_value('Serial No', serial_no, 'warehouse')
-			warehouse_type=frappe.db.get_value('Warehouse', warehouse, 'warehouse_type')	
-			print(warehouse_type,damage_warehouse_type)						
-			if warehouse_type and warehouse_type==damage_warehouse_type:
-				previous_car_status_cf=frappe.db.get_value('Serial No', serial_no, 'car_status_cf') or None
-				# self.car_status_cf='Damage'
-				frappe.db.set_value('Serial No', serial_no, 'car_status_cf', 'Damage')
+			new_car_status="Available"
+
+			if frappe.db.exists('Serial No', serial_no):
+				serial_no_doc=frappe.get_doc('Serial No',serial_no)
+
+				previous_car_status_cf = serial_no_doc.car_status_cf
+
+				serial_no_doc.append("status_log",{"posting_date":get_datetime(),"updated_by":frappe.session.user,"reference_doctype":self.doctype,
+					"reference_id":self.name,"old_status":previous_car_status_cf,"new_status":new_car_status})
+
+				if serial_no_doc.get("warehouse") and damage_warehouse_type == frappe.db.get_value('Warehouse', serial_no_doc.get("warehouse"), 'warehouse_type'):
+					new_car_status = "Damage"
+
+				serial_no_doc.car_status_cf = new_car_status
+
+				serial_no_doc.flags.ignore_validate = True					
+				serial_no_doc.save(ignore_permissions=True)
+
 				frappe.msgprint(_("VIN Number(Serial No) {0} status is changed from {1} to {2}"
-				.format(get_link_to_form('Serial No', serial_no),previous_car_status_cf,'Damage')), alert=True) 
-			else:	
-				previous_car_status_cf=frappe.db.get_value('Serial No', serial_no, 'car_status_cf') or None
-				frappe.db.set_value('Serial No', serial_no, 'car_status_cf', 'Available')
-				frappe.msgprint(_("VIN Number(Serial No) {0} status is changed from {1} to {2}"
-				.format(get_link_to_form('Serial No', serial_no),previous_car_status_cf,'Available')), alert=True)
+				.format(get_link_to_form('Serial No', serial_no),previous_car_status_cf,new_car_status)), alert=True)
+
+		# print('1'*100)
+		# print(serial_nos)
+		# if len(serial_nos)>0:
+		# 	serial_no=serial_nos[0]	
+		# 	warehouse=frappe.db.get_value('Serial No', serial_no, 'warehouse')
+		# 	warehouse_type=frappe.db.get_value('Warehouse', warehouse, 'warehouse_type')	
+		# 	print(warehouse_type,damage_warehouse_type)
+		# 	if warehouse_type and warehouse_type==damage_warehouse_type:
+		# 		previous_car_status_cf=frappe.db.get_value('Serial No', serial_no, 'car_status_cf') or None
+		# 		# self.car_status_cf='Damage'
+		# 		frappe.db.set_value('Serial No', serial_no, 'car_status_cf', 'Damage')
+		# 		frappe.msgprint(_("VIN Number(Serial No) {0} status is changed from {1} to {2}"
+		# 		.format(get_link_to_form('Serial No', serial_no),previous_car_status_cf,'Damage')), alert=True) 
+		# 	else:	
+		# 		previous_car_status_cf=frappe.db.get_value('Serial No', serial_no, 'car_status_cf') or None
+		# 		frappe.db.set_value('Serial No', serial_no, 'car_status_cf', 'Available')
+		# 		frappe.msgprint(_("VIN Number(Serial No) {0} status is changed from {1} to {2}"
+		# 		.format(get_link_to_form('Serial No', serial_no),previous_car_status_cf,'Available')), alert=True)
 
 def update_car_status(self,method):
 	print('-'*10, self.doctype,method )
-	if self.doctype in ['Quotation','Sales Order'] and method =='on_submit':
+	if self.doctype in ['Sales Order'] and method =='on_submit':
 		change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Booked')
-	if self.doctype in ['Quotation','Sales Order'] and method =='on_cancel':
+	if self.doctype in ['Sales Order'] and method =='on_cancel':
 		change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Available')
 
 
 	if self.doctype =='Delivery Note' and method =='on_submit':
 			if self.get("is_return") == 0:
-				change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Sold Out')
+				change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Delivered')
 			elif self.get("is_return") == 1:
-				change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Available')	
+				change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Sold Out')	
 	if self.doctype =='Delivery Note' and method =='on_cancel':
 			if self.get("is_return") == 0:
-				change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Available')
+				change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Sold Out')
 			elif self.get("is_return") == 1:
-				change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Sold Out')					
+				change_serial_no_car_status_for_serial_no_cf(self,new_car_status='Delivered')					
 
 	if self.doctype =='Sales Invoice' and method =='on_submit':
 		if self.get("update_stock") == 1 :
