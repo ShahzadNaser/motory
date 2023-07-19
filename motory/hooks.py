@@ -34,7 +34,7 @@ app_include_js =  ["/assets/motory/js/markerjs2.js"]
 
 # include js in doctype views
 doctype_js = {
-	# "Item" : "public/js/item.js",
+	"Item" : "public/js/item.js",
 	"Quotation" : ["public/js/car_business_logic.js","public/js/quotation.js"],
 	"Sales Order" : ["public/js/car_business_logic.js","public/js/sales_order.js"],
 	"Sales Invoice" : ["public/js/car_business_logic.js","public/js/sales_invoice.js"],
