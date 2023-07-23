@@ -106,6 +106,7 @@ doctype_list_js = {"Serial No" : "public/js/serial_no_list.js"}
 # Hook on document methods and events
 
 doc_events = {
+	"*"
 	"Serial No": { 
 		"validate": "motory.api.update_car_status"
 		},
@@ -128,18 +129,18 @@ doc_events = {
 		"on_cancel": "motory.api.update_car_status"
 	},
 	"Sales Order": { 
-		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse"],
+		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse","motory.monkey_patch.calculate_taxes_and_totals.patch"],
 		"on_submit": "motory.api.update_car_status",
 		"on_cancel": "motory.api.update_car_status"
 	},
 	"Sales Invoice": { 
-		"before_validate":"motory.api.copy_car_serial_to_vin",
+		"before_validate":["motory.api.copy_car_serial_to_vin","motory.monkey_patch.calculate_taxes_and_totals.patch"],
 		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse"],
 		"on_submit":"motory.api.update_car_status",
 		"on_cancel": "motory.api.update_car_status"
 		},
 	"Delivery Note": { 
-		"before_validate":"motory.api.copy_car_serial_to_vin",
+		"before_validate":["motory.api.copy_car_serial_to_vin","motory.monkey_patch.calculate_taxes_and_totals.patch"],
 		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_color","motory.api.validate_damaged_warehouse","motory.api.fetch_used_car_details"],
 		"on_submit": "motory.api.update_car_status",
 		"on_cancel": "motory.api.update_car_status"
