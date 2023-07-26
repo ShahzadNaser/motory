@@ -46,7 +46,7 @@ def get_current_tax_amount(self, item, tax, item_tax_map):
         current_tax_amount = tax_rate * item.qty
 
     elif tax.charge_type == "On Profit Margin":
-        current_tax_amount = (tax_rate / 100.0) * (item.net_amount - ((item.purchase_rate or 0) * item.qty))
+        current_tax_amount = (tax_rate / 100.0) * (item.net_amount - ((item.get("purchase_rate") or 0) * item.qty))
 
     if not (self.doc.get("is_consolidated") or tax.get("dont_recompute_tax")):
         self.set_item_wise_tax(item, tax, tax_rate, current_tax_amount)

@@ -617,7 +617,7 @@
    "description": null,
    "docstatus": 0,
    "dt": "Sales Invoice Item",
-   "fetch_from": "car_color_cf.car_color_cf",
+   "fetch_from": "serial_no_cf.car_color_cf",
    "fetch_if_empty": 0,
    "fieldname": "car_color_cf",
    "fieldtype": "Link",
