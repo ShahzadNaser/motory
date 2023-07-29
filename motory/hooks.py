@@ -130,12 +130,14 @@ doc_events = {
 	},
 	"Sales Order": { 
 		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse","motory.monkey_patch.calculate_taxes_and_totals.patch"],
+		"before_save": "motory.api.before_save",
 		"on_submit": "motory.api.update_car_status",
 		"on_cancel": "motory.api.update_car_status"
 	},
 	"Sales Invoice": { 
 		"before_validate":["motory.api.copy_car_serial_to_vin","motory.monkey_patch.calculate_taxes_and_totals.patch"],
 		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse"],
+		"before_save": "motory.api.before_save",
 		"on_submit":"motory.api.update_car_status",
 		"on_cancel": "motory.api.update_car_status"
 		},
