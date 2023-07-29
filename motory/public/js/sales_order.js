@@ -30,6 +30,23 @@ frappe.ui.form.on('Sales Order', {
         if (frm.doc.docstatus === 1) {
             frm.add_custom_button(__('Transfer Car'), () => frm.trigger('create_stock_entry'));
         }
+        cur_frm.doc.items.forEach(function(item){
+            if (item.serial_no_cf && item.purchase_rate){
+                let margin_p = ((item.rate - item.purchase_rate)/item.rate)*100;
+                var color = "white";
+                if(margin_p <= 1.00 ){
+                    color = "#ffe6e6"; 
+                }
+                if(item.discount_percentage &&  item.discount_percentage > 0.5){
+                    color = "#f9f1df"; 
+                    if (margin_p <= 1.00){
+                        color = "#e7b3b9"; 
+                    }
+                }
+                $('[data-name="'+item.name+'"]').css('background-color',color);
+            }
+        });
+    
     },
     create_stock_entry: (frm) => {
 		frappe.xcall('motory.api.create_stock_entry', {
@@ -40,6 +57,25 @@ frappe.ui.form.on('Sales Order', {
 		});
 	}
 });
+
+frappe.ui.form.on("Sales Order Item", {
+    serial_no_cf:function(frm,cdt,cdn){
+        var item = frappe.get_doc(cdt, cdn);
+        frappe.db.get_value(
+            "Serial No",
+            {
+                name: item.serial_no_cf
+            },
+            "purchase_rate",
+            (r) => {
+                if (r) {
+                    frappe.model.set_value(cdt, cdn, "purchase_rate", r.purchase_rate);
+                    frm.trigger("rate", cdt, cdn);
+                }
+            }
+        );
+    }
+  });
 
 erpnext.taxes_and_total = erpnext.taxes_and_totals.extend({
     calculate_net_total: function() {        
