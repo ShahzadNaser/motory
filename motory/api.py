@@ -368,6 +368,24 @@ def validate_color(self,method):
 				frappe.throw(_("Item row {0}: has color {1}, whereas color in VIN Number(Serial No) is {2}. It should match.")
 				.format(item.idx, frappe.bold(item.car_color_cf or None),frappe.bold(serial_no_color))) 
 
+def before_save(self,method):
+	if self.doctype in ['Sales Order','Sales Invoice']:
+		margins = []
+		discounts = []
+		for item in self.get("items"):
+			if item.get("serial_no_cf"):
+				if not item.get("purchase_rate"):
+					item.purchase_rate = frappe.db.get_value("Serial No",item.get("serial_no_cf"),"purchase_rate")
+				margins.append(round(((item.rate - item.purchase_rate or 0)/item.rate)*100,2))
+			if item.discount_percentage:
+				discounts.append(item.discount_percentage)
+
+		if margins:
+			self.margin = min(margins)
+		if discounts:
+			self.discount = max(discounts)
+
+
 @frappe.whitelist()
 def create_stock_entry(sales_order):
 	sales_order = frappe.get_doc(json.loads(sales_order))
