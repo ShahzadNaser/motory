@@ -5,7 +5,7 @@ frappe.ui.form.on('Sales Invoice', {
         frm.set_query('serial_no_cf', 'items', (frm, cdt, cdn) => {
             var d = frappe.model.get_doc(cdt, cdn);
             var car_status_cf
-            if (frm.doc.is_return == 1 && frm.doc.update_stock == 1) {
+            if (cur_frm.doc.is_return && cur_frm.doc.update_stock) {
                 car_status_cf = ['Sold Out']
             } else {
                 car_status_cf = ['Available']

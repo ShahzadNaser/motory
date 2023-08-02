@@ -42,11 +42,11 @@ frappe.ui.form.on("Purchase Receipt", {
 frappe.ui.form.on("Purchase Receipt Item", {
   numbers:function(frm,cdt,cdn){
     var item = frappe.get_doc(cdt, cdn);
-    frappe.model.set_value(cdt, cdn, "car_plate_no_cf", (item.letters || '') + '-' + (item.numbers || ''));
+    frappe.model.set_value(cdt, cdn, "car_plate_no_cf", (item.numbers || '') + '-' + (item.letters || ''));
   },
   letters:function(frm,cdt,cdn){
     var item = frappe.get_doc(cdt, cdn);
-    frappe.model.set_value(cdt, cdn, "car_plate_no_cf", (item.letters || '') + '-' + (item.numbers || ''));
+    frappe.model.set_value(cdt, cdn, "car_plate_no_cf", (item.numbers || '') + '-' + (item.letters || ''));
   }
 });
 function setSourceImage(source) {
