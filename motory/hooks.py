@@ -227,20 +227,6 @@ user_data_fields = [
 	}
 ]
 
-fixtures = [
-    {
-        "dt": "Custom Field",
-        "filters": [
-            ["name", "in", [
-                # journal Entry Account
-                "Journal Entry Account-account_name_ar",
-				# Payment Entry Deduction
-			  	"Payment Entry Deduction-account_name_ar"
-
-            ]
-            ]]
-    },
-    ]
 # Authentication and authorization
 # --------------------------------
 
