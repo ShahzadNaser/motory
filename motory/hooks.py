@@ -124,7 +124,7 @@ doc_events = {
 		"on_cancel": "motory.api.update_car_status"
 	},
 	"Purchase Invoice": { 
-		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_single_serial_no"],
+		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_single_serial_no","motory.api.get_child_config_pi"],
 		"on_submit": ["motory.api.update_car_status","motory.api.copy_car_fields_to_serial_no_doc"],
 		"on_cancel": "motory.api.update_car_status"
 	},
@@ -136,7 +136,7 @@ doc_events = {
 	},
 	"Sales Invoice": { 
 		"before_validate":["motory.api.copy_car_serial_to_vin","motory.monkey_patch.calculate_taxes_and_totals.patch"],
-		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse"],
+		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse","motory.api.get_child_config"],
 		"before_save": "motory.api.before_save",
 		"on_submit":"motory.api.update_car_status",
 		"on_cancel": "motory.api.update_car_status"
