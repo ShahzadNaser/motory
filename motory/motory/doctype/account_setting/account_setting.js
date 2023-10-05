@@ -1,7 +1,7 @@
 // Copyright (c) 2023, Shahzad Naser and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('Config', {
+frappe.ui.form.on('Account Setting', {
 	// refresh: function(frm) {
 
 	// }

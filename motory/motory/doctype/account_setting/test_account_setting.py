@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestConfig(unittest.TestCase):
+class TestAccountSetting(unittest.TestCase):
 	pass
