@@ -423,35 +423,15 @@ def create_stock_entry(sales_order):
 	return stock_entry.as_dict()					
 
 
-@frappe.whitelist(allow_guest=True)
-def get_child_config(self, method=None):
     for row in self.items:
         cost_center = row.cost_center
-
+        item_type= row.item_type_cf
         result = frappe.get_all(
             'Child Config',
             filters={
                 'parent': 'Config',
                 'cost_center': cost_center,
-                'doctype_': 'Sales Invoice'
-            },
-            fields=['account']
-        )
-        
-        if result:
-            row.income_account = result[0]['account'] if result else None
-
-@frappe.whitelist(allow_guest=True)
-
-def get_child_config_pi(self, method=None):
-    for row in self.items:
-        cost_center = row.cost_center
-
-        result = frappe.get_all(
-            'Child Config',
-            filters={
-                'parent': 'Config',
-                'cost_center': cost_center,
+				'item_type_cf': item_type,
                 'doctype_': 'Purchase Invoice'
             },
             fields=['account']
