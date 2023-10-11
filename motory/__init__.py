@@ -40,4 +40,4 @@ def new_get_item_details(args, doc=None, for_validate=False, overwrite_warehouse
 
     return out
 
-get_item_details.get_item_details = new_get_item_details
+# get_item_details.get_item_details = new_get_item_details
