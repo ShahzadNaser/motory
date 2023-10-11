@@ -40,7 +40,8 @@ doctype_js = {
 	"Sales Invoice" : ["public/js/car_business_logic.js","public/js/sales_invoice.js"],
 	"Delivery Note" : ["public/js/car_business_logic.js","public/js/delivery_note.js"],
 	"Purchase Receipt":"public/js/purchase_receipt.js",
-	"Purchase Order":"public/js/purchase_order.js"
+	"Purchase Order":"public/js/purchase_order.js",
+	"Purchase Invoice":"public/js/purchase_invoice.js"
 	}
 doctype_list_js = {"Serial No" : "public/js/serial_no_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

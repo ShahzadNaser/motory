@@ -11,6 +11,10 @@ def update_valid_till(quotation,valid_till):
 	frappe.db.set_value('Quotation', quotation, 'valid_till', valid_till)
 	return True
 
+@frappe.whitelist()
+def get_account(doctype=None,cost_center=None, item_type_cf=None):
+	
+	return frappe.db.get_value("Child Config",{"doctype_":doctype,"cost_center":cost_center,"item_type_cf":item_type_cf},"account") or ""
 
 def update_expense_in_serial_no(self,method):
 	if self.expense_against_serial_no_cf:
@@ -423,19 +427,19 @@ def create_stock_entry(sales_order):
 	return stock_entry.as_dict()					
 
 
-    for row in self.items:
-        cost_center = row.cost_center
-        item_type= row.item_type_cf
-        result = frappe.get_all(
-            'Child Config',
-            filters={
-                'parent': 'Config',
-                'cost_center': cost_center,
-				'item_type_cf': item_type,
-                'doctype_': 'Purchase Invoice'
-            },
-            fields=['account']
-        )
+    # for row in self.items:
+    #     cost_center = row.cost_center
+    #     item_type= row.item_type_cf
+    #     result = frappe.get_all(
+    #         'Child Config',
+    #         filters={
+    #             'parent': 'Config',
+    #             'cost_center': cost_center,
+	# 			'item_type_cf': item_type,
+    #             'doctype_': 'Purchase Invoice'
+    #         },
+    #         fields=['account']
+    #     )
         
-        if result:
-            row.expense_account = result[0]['account'] if result else None
+    #     if result:
+    #         row.expense_account = result[0]['account'] if result else None
