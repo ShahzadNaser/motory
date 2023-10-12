@@ -42,7 +42,7 @@ doctype_js = {
 	"Purchase Receipt":"public/js/purchase_receipt.js",
 	"Purchase Order":"public/js/purchase_order.js",
 	"Purchase Invoice":"public/js/purchase_invoice.js"
-	}
+}
 doctype_list_js = {"Serial No" : "public/js/serial_no_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -127,6 +127,7 @@ doc_events = {
 	"Purchase Invoice": { 
 		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_single_serial_no"],
 		"on_submit": ["motory.api.update_car_status","motory.api.copy_car_fields_to_serial_no_doc"],
+		"before_save": "motory.api.before_save_pi",
 		"on_cancel": "motory.api.update_car_status"
 	},
 	"Sales Order": { 

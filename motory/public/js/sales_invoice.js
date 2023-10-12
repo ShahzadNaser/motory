@@ -74,7 +74,7 @@ frappe.ui.form.on("Sales Invoice Item", {
 	    var item = frappe.get_doc(cdt, cdn);
         frappe.call({
             "method": "motory.api.get_account",
-            "args": {"doctype":"Purchase Invoice","cost_center":item.cost_center,"item_type_cf":item.item_type_cf},
+            "args": {"doctype":"Sales Invoice","cost_center":item.cost_center,"item_type_cf":item.item_type_cf},
             callback: function(r) {
                 if(r.message) {
                     frappe.model.set_value(cdt, cdn, "income_account", r.message);
@@ -86,7 +86,7 @@ frappe.ui.form.on("Sales Invoice Item", {
 	    var item = frappe.get_doc(cdt, cdn);
         frappe.call({
             "method": "motory.api.get_account",
-            "args": {"doctype":"Purchase Invoice","cost_center":item.cost_center,"item_type_cf":item.item_type_cf},
+            "args": {"doctype":"Sales Invoice","cost_center":item.cost_center,"item_type_cf":item.item_type_cf},
             callback: function(r) {
                 if(r.message) {
                     frappe.model.set_value(cdt, cdn, "income_account", r.message);
@@ -98,7 +98,7 @@ frappe.ui.form.on("Sales Invoice Item", {
 	    var item = frappe.get_doc(cdt, cdn);
         frappe.call({
             "method": "motory.api.get_account",
-            "args": {"doctype":"Purchase Invoice","cost_center":item.cost_center,"item_type_cf":item.item_type_cf},
+            "args": {"doctype":"Sales Invoice","cost_center":item.cost_center,"item_type_cf":item.item_type_cf},
             callback: function(r) {
                 if(r.message) {
                     frappe.model.set_value(cdt, cdn, "income_account", r.message);

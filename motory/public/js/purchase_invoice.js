@@ -1,4 +1,4 @@
-frappe.ui.form.on("Sales Invoice Item", {
+frappe.ui.form.on("Purchase Invoice Item", {
     item_code(frm,cdt,cdn) {
 	    var item = frappe.get_doc(cdt, cdn);
         frappe.call({
