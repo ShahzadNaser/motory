@@ -13,7 +13,7 @@ def update_valid_till(quotation,valid_till):
 
 @frappe.whitelist()
 def get_account(doctype=None,cost_center=None, item_type_cf=None):
-	
+
 	return frappe.db.get_value("Child Config",{"doctype_":doctype,"cost_center":cost_center,"item_type_cf":item_type_cf},"account") or ""
 
 def update_expense_in_serial_no(self,method):
@@ -33,8 +33,11 @@ def calculate_total_expense_cf_in_serial_no(serial_no):
 			frappe.db.set_value('Serial No', expense.expense_against_serial_no_cf, 'total_expense_cf', total_expense)
 
 
-
-
+def before_save_pi(doc,method):
+	if doc.get("type") == "Expense" and doc.get("serial_no"):
+		if doc.get("serial_no") not in doc.get("remarks"):
+			doc.remarks = "Expense Entry For Serial No # {}".format(doc.get("serial_no"))
+		
 def update_car_status_to_available_for_expired_quotations():
 	expired_quotations=frappe.db.get_list('Quotation', filters={'valid_till': ['<', getdate(today())],'docstatus':1,'status': ['!=', 'Expired']},fields=['name'])
 	print('expired_quotations',expired_quotations)	
@@ -103,6 +106,10 @@ def copy_car_fields_to_serial_no_doc(self,method):
 				serial_no_doc.save(ignore_permissions=True)				
 				frappe.msgprint(_("VIN Number(Serial No) {0} all car fields are updated"
 				.format(get_link_to_form('Serial No', serial_no))), alert=True)
+	if self.doctype=='Purchase Invoice' and self.get("type") == "Expense" and self.get("serial_no"):
+		total_expense = frappe.db.get_value('Serial No', self.get("serial_no"), 'total_expense_cf') or 0 + self.get("rounded_total")
+		frappe.db.set_value('Serial No', self.get("serial_no"), 'total_expense_cf', total_expense)
+		# frappe.db.commit()
 
 
 def sync_accessories_inspection_details(self,method):
