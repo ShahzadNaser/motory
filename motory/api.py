@@ -107,7 +107,7 @@ def copy_car_fields_to_serial_no_doc(self,method):
 				frappe.msgprint(_("VIN Number(Serial No) {0} all car fields are updated"
 				.format(get_link_to_form('Serial No', serial_no))), alert=True)
 	if self.doctype=='Purchase Invoice' and self.get("type") == "Expense" and self.get("serial_no"):
-		total_expense = frappe.db.get_value('Serial No', self.get("serial_no"), 'total_expense_cf') or 0 + self.get("rounded_total")
+		total_expense = frappe.db.get_value('Serial No', self.get("serial_no"), 'total_expense_cf') or 0 + self.get("total")
 		frappe.db.set_value('Serial No', self.get("serial_no"), 'total_expense_cf', total_expense)
 		# frappe.db.commit()
 
