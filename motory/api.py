@@ -34,9 +34,10 @@ def calculate_total_expense_cf_in_serial_no(serial_no):
 
 
 def before_save_pi(doc,method):
-	if doc.get("type") == "Expense" and doc.get("serial_no"):
-		if doc.get("serial_no") not in doc.get("remarks"):
-			doc.remarks = "Expense Entry For Serial No # {}".format(doc.get("serial_no"))
+	if doc.get("type") == "Expense":
+		vin_numbers =  ','.join(item.get("vin_number") for item in doc.get("items"))
+		if len(vin_numbers) > 4:
+			doc.remarks = "Expense Entry For VIN Numbers # {}".format(vin_numbers)
 		
 def update_car_status_to_available_for_expired_quotations():
 	expired_quotations=frappe.db.get_list('Quotation', filters={'valid_till': ['<', getdate(today())],'docstatus':1,'status': ['!=', 'Expired']},fields=['name'])
@@ -106,10 +107,20 @@ def copy_car_fields_to_serial_no_doc(self,method):
 				serial_no_doc.save(ignore_permissions=True)				
 				frappe.msgprint(_("VIN Number(Serial No) {0} all car fields are updated"
 				.format(get_link_to_form('Serial No', serial_no))), alert=True)
-	if self.doctype=='Purchase Invoice' and self.get("type") == "Expense" and self.get("serial_no"):
-		total_expense = frappe.db.get_value('Serial No', self.get("serial_no"), 'total_expense_cf') or 0 + self.get("total")
-		frappe.db.set_value('Serial No', self.get("serial_no"), 'total_expense_cf', total_expense)
-		# frappe.db.commit()
+			print(self.doctype ,self.get("type") ,item.get("vin_number"))
+	if self.doctype=='Purchase Invoice' and self.get("type") == "Expense":
+		vin_numbers = frappe._dict({})
+		for item in self.get("items"):
+			if self.doctype=='Purchase Invoice' and self.get("type") == "Expense" and item.get("vin_number"):
+				expense = frappe.db.get_value('Serial No', item.get("vin_number"), 'total_expense_cf') or 0
+				if not vin_numbers.get(item.get("vin_number")):
+					vin_numbers[item.get("vin_number")] = expense + item.get("amount") or 0
+				else:
+					vin_numbers[item.get("vin_number")] += item.get("amount") or 0
+		if vin_numbers and self.doctype=='Purchase Invoice' and self.get("type") == "Expense":
+			for vin in vin_numbers:
+				frappe.db.set_value('Serial No', vin , 'total_expense_cf', vin_numbers.get(vin))
+			frappe.db.commit()
 
 
 def sync_accessories_inspection_details(self,method):
