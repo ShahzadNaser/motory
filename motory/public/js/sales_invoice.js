@@ -50,6 +50,23 @@ frappe.ui.form.on('Sales Invoice', {
                 $('[data-name="'+item.name+'"]').css('background-color',color);
             }
         });
+        if(frm.doc.docstatus == 1){
+			cur_frm.add_custom_button(__('Regenrate QR Code'),function(frm) {
+				frappe.call({
+					method: "motory.api.regenrate_qr_code",
+					args: {"invoice":cur_frm.doc.name || ""},
+					debounce: 3000,
+					callback: function(r){
+						console.log(r.message);
+						frappe.show_alert({
+							message: __("Updating QR Code ...."),
+							indicator: "blue",
+						});
+						cur_frm.reload_doc();
+					}
+				})
+			});
+        }
     }
 });
 
