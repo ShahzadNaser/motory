@@ -35,7 +35,7 @@ def calculate_total_expense_cf_in_serial_no(serial_no):
 
 def before_save_pi(doc,method):
 	if doc.get("type") == "Expense":
-		vin_numbers =  ','.join(item.get("vin_number") for item in doc.get("items"))
+		vin_numbers =  ','.join(item.get("vin_number") or "" for item in doc.get("items"))
 		if len(vin_numbers) > 4:
 			doc.remarks = "Expense Entry For VIN Numbers # {}".format(vin_numbers)
 		
@@ -65,7 +65,7 @@ def copy_car_serial_to_vin(self,method):
 
 def fetch_used_car_details(self,method):
 	for item in self.get("items"):
-		if item.item_type_cf=='Used Car':
+		if item.get("item_type_cf")=='Used Car':
 			serial_nos=get_serial_nos(item.serial_no)
 			if len(serial_nos)>0:		
 				serial_no=serial_nos[0]
@@ -157,13 +157,13 @@ def fetch_accessories_inspection_details(self,method):
 	if ((self.doctype=='Purchase Receipt') or (self.doctype=='Delivery Note') or (self.doctype=='Stock Entry' and self.get("stock_entry_type")=="Material Receipt")
 		or (self.doctype=='Purchase Invoice' and  self.get("update_stock") == 1)):
 		motory_settings=frappe.get_doc('Motory Settings','Motory Settings')
-		if not self.car_accessories_detail_cf:
+		if not self.get("car_accessories_detail_cf"):
 			for accessory in motory_settings.get("car_accessories_detail"):
 				accessory_row=self.append('car_accessories_detail_cf',{})
 				accessory_row.accessory=accessory.accessory
 				accessory_row.is_available=accessory.is_available
 
-		if not self.car_predelivery_inspection_checklist_cf:
+		if not self.get("car_predelivery_inspection_checklist_cf"):
 			for checklist in motory_settings.get("car_predelivery_inspection_checklist"):
 				checklist_row=self.append('car_predelivery_inspection_checklist_cf',{})
 				checklist_row.predelivery_check=checklist.predelivery_check
@@ -353,7 +353,7 @@ def validate_serial_no_and_qty(self,method):
 		if self.get("stock_entry_type")=="Material Receipt" :
 			item_count=len(self.items)
 			for item in self.items:
-				if item.item_type_cf in ['New Car','Used Car']:
+				if item.get("item_type_cf") in ['New Car','Used Car']:
 					if item_count>1:
 							frappe.throw(_("For Material Receipt, single row is allowd for New/Used Car."))
 					if item.qty>1:
@@ -364,7 +364,7 @@ def validate_serial_no_and_qty(self,method):
 							.format(item.idx, frappe.bold(len(serial_nos))))   
 		elif self.get("stock_entry_type")=="Material Transfer" :
 			for item in self.items:
-				if item.item_type_cf in ['New Car','Used Car']:
+				if item.get("item_type_cf") in ['New Car','Used Car']:
 					if item.qty>1:
 							frappe.throw(_("For Material Transfer, only single qty is allowd for New/Used Car."))						
 					serial_nos=get_serial_nos(item.serial_no)
@@ -433,7 +433,7 @@ def create_stock_entry(sales_order):
 		se_item.car_source_cf=frappe.db.get_value('Serial No', so_item.serial_no_cf, 'car_source_cf') or None
 		se_item.car_parking_no_cf=frappe.db.get_value('Serial No', so_item.serial_no_cf, 'car_parking_no_cf') or None
 		se_item.car_line_no_cf=frappe.db.get_value('Serial No', so_item.serial_no_cf, 'car_line_no_cf') or None
-		se_item.item_type_cf=so_item.item_type_cf
+		se_item.item_type_cf=so_item.get("item_type_cf")
 		se_item.qty=so_item.qty
 		se_item.transfer_qty=so_item.qty
 		se_item.uom=so_item.uom
