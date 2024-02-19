@@ -98,9 +98,9 @@ doctype_list_js = {"Serial No" : "public/js/serial_no_list.js"}
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Journal Entry": "motory.overrides.journal_entry.CustomJournalEntry"
+}
 
 # Document Events
 # ---------------
