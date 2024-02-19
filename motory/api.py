@@ -466,8 +466,11 @@ def create_stock_entry(sales_order):
 @frappe.whitelist()
 def regenrate_qr_code(invoice=None):
 	from erpnext.regional.saudi_arabia.utils import create_qr_code
+	frappe.log_error(message="{0}".format(invoice) , title="=====")
 	if invoice and frappe.db.exists("Sales Invoice",invoice):
+		frappe.log_error(message="{0}".format(invoice) , title="=====")
 		doc = frappe.get_doc("Sales Invoice",invoice)
 		create_qr_code(doc,"custom")
 		frappe.db.commit()
+		frappe.log_error(message="{0}".format(invoice) , title="=====")
 	return True
