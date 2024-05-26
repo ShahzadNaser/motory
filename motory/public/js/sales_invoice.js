@@ -50,7 +50,7 @@ frappe.ui.form.on('Sales Invoice', {
                 $('[data-name="'+item.name+'"]').css('background-color',color);
             }
         });
-        if(frm.doc.docstatus == 1 && frappe.user_roles.includes("Accounts Manager")){
+        if(frm.doc.docstatus == 5 && frappe.user_roles.includes("Accounts Manager")){
 			cur_frm.add_custom_button(__('Regenrate QR Code'),function(frm) {
 				frappe.call({
 					method: "motory.api.regenrate_qr_code",
