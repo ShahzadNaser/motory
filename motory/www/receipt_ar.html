@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <!-- <link rel="stylesheet" href="css/fonts.css"> -->
+    <style>
+
+        :root {
+            --main-color: #171D35;
+            --aqua-color: #4C86A0;
+            --neutral-2-color: #F6F7F8;
+            --neutral-5-color: #ECEDF1;
+        }
+        
+        @media print {
+            * {
+                margin: 0;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact
+            }
+        }
+        
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        body {
+            padding: 0 28px;
+            border: 0;
+            font-size: 9px;
+            color: var(--main-color);
+            font-family: Almarai, Arial, Helvetica, sans-serif;
+            margin: auto;
+            width: 539px;
+            background: #fff;
+            border-top: 4px solid var(--aqua-color);
+            height: calc(100vh - 4px);
+        }
+        
+        header {
+            padding-inline: 12px;
+            padding-block: 32px 24px;
+        }
+        
+        .header-top-section,
+        .header-bottom-section {
+            column-gap: 20px;
+            justify-content: space-between;
+        }
+        
+        .motory-info {
+            row-gap: 16px;
+            line-height: 10.04px;
+            width: 349px;
+        }
+        
+        .motory-info-logos {
+            column-gap: 12px;
+        }
+        
+        .motory-info-desc {
+            row-gap: 4px;
+        }
+        
+        .invoice-info {
+            row-gap: 16px;
+            width: 150px;
+            padding-top: 16px;
+        }
+        
+        .invoice-info-title {
+            max-width: fit-content;
+            padding: 0 2px 2px;
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 17.86px;
+            background: linear-gradient(rgba(76, 134, 160, 0.1), rgba(76, 134, 160, 0.1)) bottom / 100% 8px no-repeat;
+        }
+        
+        .invoice-info-desc {
+            row-gap: 4px;
+        }
+        
+        .send-to-section {
+            row-gap: 8px;
+            width: 349px;
+        }
+        
+        .send-to-section-title {
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 13.39px;
+        }
+        
+        .send-to-section-desc {
+            row-gap: 4px;
+        }
+        
+        .qr-section {
+            width: 150px;
+        }
+        
+        .qr-section-title {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .invoice-table-header {
+            background-color: var(--neutral-2-color);
+            padding: 9px 12px 10px;
+            column-gap: 12px;
+            font-weight: bold;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+        
+        .invoice-table-item {
+            padding-block: 12px;
+            margin-inline: 12px;
+            column-gap: 12px;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--neutral-2-color);
+        }
+        
+        .invoice-table-item-desc ul {
+            row-gap: 4px;
+        }
+        
+        .invoice-table-item-desc span {
+            width: 100% !important;
+        }
+        
+        .invoice-table-header span:nth-child(1),
+        .invoice-table-item span:nth-child(1) {
+            width: 221px;
+        }
+        
+        .invoice-table-header span:nth-child(2),
+        .invoice-table-item span:nth-child(2) {
+            width: 120px;
+        }
+        
+        .invoice-table-header span:nth-child(3),
+        .invoice-table-item span:nth-child(3) {
+            width: 6.5%;
+            text-align: start;
+        }
+        
+        .invoice-table-header span:nth-child(4),
+        .invoice-table-item span:nth-child(4) {
+            width: 20%;
+            text-align: end;
+        }
+        
+        .invoice-table-total {
+            padding-block: 12px;
+            padding-inline-end: 12px;
+            margin-inline-start: auto;
+            width: 52%;
+        }
+        
+        .invoice-table-total-desc {
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--neutral-2-color);
+            row-gap: 8px;
+        }
+        
+        .invoice-table-total-desc-item {
+            justify-content: space-between;
+        }
+        
+        .invoice-table-total-final {
+            padding-top: 10px;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+        
+        footer {
+         margin-top: auto;
+         padding: 0 12px;   
+        }
+        
+        .payment-info {
+            border-top: 1px solid var(--neutral-2-color);
+            border-bottom: 1px solid var(--neutral-2-color);
+            padding-block: 12px;
+            row-gap: 4px;
+        }
+        
+        .page-info {
+            padding: 12px 0 16px;
+            justify-content: space-between;
+            direction: rtl;
+        }
+        
+        .page-info span {
+            flex: 0 0 149px;
+        }
+        
+        .page-info div {
+            padding-inline-end: 7px;
+        }
+        
+        .page-info div:nth-child(3) {
+            padding-inline: 7px;
+            border-inline: 1px solid var(--neutral-5-color);
+        }
+        
+        .page-info div:last-child {
+            padding-inline-start: 7px;
+            padding-inline-end: 0;
+        }
+        
+        .horizontal-separator {
+            width: 100%;
+            height: 1px;
+            background-color: var(--neutral-2-color);
+            margin-block: 16px 12px;
+        }
+        
+        .vertical-seperator {
+            background-color: var(--neutral-5-color);
+            width: 1px;
+            height: 6px;
+            display: inline-block;
+            margin-inline: 8px;
+        }
+        
+        .d-flex {
+            display: flex;
+        }
+        
+        .inline-block {
+            display: inline-block;
+        }
+        
+        .flex-column {
+            flex-direction: column;
+        }
+        
+        .row-gap-8 {
+            row-gap: 8px;
+        }
+        
+        .col-gap-2 {
+            column-gap: 2px;
+        }
+    </style>
+</head>
+<body dir="rtl" class="rtl d-flex flex-column">
+    <header>
+        <div class="header-top-section d-flex">
+            <div class="motory-info d-flex flex-column">
+                <div class="motory-info-logos d-flex">
+                    <img src="/files/mazad-logo-ar.svg" height="36" alt="Mazad By Motory">
+                    <img src="/files/alj-tect-ar.svg" alt="Abdul Latif Jameel Technology">
+                </div>
+
+                <div class="motory-info-desc d-flex flex-column">
+                    <span>{{ "شركة عبد اللطيف جميل للتقنية" }} | {{_("Capital: 86 million riyal fully paid","ar")}}</span><br>
+                    <span> {{_("CR Number","ar")}}: 1010468872 |  {{_("VAT Number","ar")}}: 310084293100003</span><br>
+                    <span>{{_("Hamra Neighborhood, Al Madina Al Munawara Road 6794","ar")}}</span><br>
+                    <span>{{_("Nakheel Center, Unit No. 105, PO. Box 4667","ar")}}</span><br>
+                    <span>{{_("Jeddah 23324, Kingdom of Saudi Arabia","ar")}}</span>
+                </div>
+            </div>
+
+            <div class="invoice-info d-flex flex-column">
+                <span class="invoice-info-title">Receipt</span>
+
+                <div class="invoice-info-desc d-flex flex-column">
+                    <span class="d-flex col-gap-2">
+                        <span>{{_("Receipt No","ar")}}:</span>
+                        <span>{{doc.name}}</span>
+                    </span>
+
+                    <span class="d-flex col-gap-2">
+                        <span>{{_("Date Paid","ar")}}:</span>
+                        <span dir="ltr">{{doc.posting_date}}</span>
+                    </span>        
+                    <span class="d-flex col-gap-2">
+                        <span>{{_("Payment Method","ar")}}:</span>
+                        <span>{{doc.mode_of_payment}}</span>
+                    </span>
+                    <span class="d-flex col-gap-2">
+                        <span>{{_("Customer","ar")}}:</span>
+                        <span>{{doc.party}}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="horizontal-separator"></div>
+    </header>
+
+    <div class="content">
+       <div class="invoice-table">
+            <div class="invoice-table-header d-flex">
+                <span>{{_("Description","ar")}}</span>
+                <span style="text-align:left">{{_("Amount","ar")}}</span>
+            </div>
+
+            <div class="invoice-table-item d-flex">
+                <span class="invoice-table-item-desc">
+                    <ul class="d-flex flex-column">
+                        <li>
+                            {{_("Advance Payment","ar")}}
+                        </li>
+                    </ul>
+                </span>
+                <span style="text-align:left">{{frappe.utils.fmt_money(doc.paid_amount,currency=doc.currency)}}</span>
+            </div>
+            
+            <div class="invoice-table-total d-flex flex-column">
+                <div class="invoice-table-total-final d-flex">
+                    <span>
+                        <span>{{_("Amount Paid On","ar")}} </span>
+                        <span>{{frappe.utils.format_date(doc.posting_date, "dd MMMM, YYYY")}}</span>
+                    </span>
+
+                    <span>ر.س {{doc.paid_amount}}</span>
+                </div>
+            </div>
+       </div>
+    </div>
+
+    <footer>
+        <div class="page-info d-flex">
+            <div>{{_("Approved By","ar")}}: {{doc.modified_by}}</div>
+            <div>{{_("Created By","ar")}}: {{doc.owner}}</div>
+            <div>{{doc.name}}</div>
+        </div>
+    </footer>
+</body>
+</html>
