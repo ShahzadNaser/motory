@@ -477,28 +477,35 @@ def regenrate_qr_code(invoice=None):
 
 
 @frappe.whitelist()
-def add_customer(invoice=None):
+def add_payment(invoice=None):
 	response = {}
 	params = get_post_params()
 	if not params:
 		return {"success":False,"message":"No request payload found"}
-	if not params.get("customer_name"):
-		return {"success":False,"message":"Cusotmer Name not found in payload"}
+	if not params.get("customer_name") and not params.get("customer_name_en"):
+		return {"success":False,"message":"Customer Name is required."}
+	if not params.get("mazad_user_id"):
+		return {"success":False,"message":"Mazad User ID must required."}
 	if not params.get("paid_amount"):
-		return {"success":False,"message":"Paid Amount not found in payload"}
+		return {"success":False,"message":"Paid Amount is required."}
 	try:
 		# Create the customer
-		customer = frappe.get_doc({
-			"doctype": "Customer",
-			"customer_name": params.get("customer_name"),
-			"customer_type": "Individual",
-			"customer_group": "All Customer Groups",
-			"territory": "All Territories"
-		})
-		customer.flags.ignore_permissions = 1
-		customer.insert()
-		frappe.db.commit()  # Commit to save the customer
-
+		party = frappe.db.get_value("Customer",{"mazad_user_id": params.get("customer_name")},"name")
+		if not party:
+			customer = frappe.get_doc({
+				"doctype": "Customer",
+				"customer_name": params.get("customer_name_en") or params.get("customer_name"),
+				"customer_name_in_arabic": params.get("customer_name"),
+				"iban": params.get("customer_name"),
+				"mazad_user_id": params.get("customer_name"),
+				"customer_type": "Individual",
+				"customer_group": "All Customer Groups",
+				"territory": "All Territories"
+			})
+			customer.flags.ignore_permissions = 1
+			customer.insert()
+			frappe.db.commit()  # Commit to save the customer
+			party = customer.name		
 		# Create the payment entry
 		pe = frappe.new_doc("Payment Entry")
 		pe.payment_type = "Receive"
@@ -506,7 +513,7 @@ def add_customer(invoice=None):
 		pe.posting_date = frappe.utils.nowdate()
 		pe.mode_of_payment =  "Wire Transfer"
 		pe.party_type = "Customer"
-		pe.party = "Test Customer 4"
+		pe.party = party
 
 		pe.paid_from = "1142001 - Account Receivable - MS"
 		pe.paid_to = frappe.db.get_value("Mode of Payment Account",{"parent":"Wire Transfer","company":frappe.defaults.get_global_default("company")},"default_account")
@@ -520,7 +527,12 @@ def add_customer(invoice=None):
 		pe.flags.ignore_permissions = 1
 		pe.insert()
 		frappe.db.commit()  # Commit to save the payment entry
-		return {"success":True,"payment_link":"{}/receipt?{}".format(str(frappe.utils.get_url()),pe.name),"message":"Customer {} successfully created and payment received".format("")}
+		return {
+      		"success":True,
+          	"payment_link_en":"{}/receipt?{}".format(str(frappe.utils.get_url()),pe.name),
+          	"payment_link_ar":"{}/receipt_ar?{}".format(str(frappe.utils.get_url()),pe.name),
+			"message":"Customer {} successfully created and payment received".format(party)
+   		}
 	except Exception as e:
 		frappe.log_error("Error on Creating Customer",frappe.get_traceback())
 		return {"success":False,"message":"Something went wroung please ask administrator to check logs"}
