@@ -529,9 +529,9 @@ def add_payment(invoice=None):
 		frappe.db.commit()  # Commit to save the payment entry
 		return {
       		"success":True,
-          	"payment_link_en":"{}/receipt?{}".format(str(frappe.utils.get_url()),pe.name),
-          	"payment_link_ar":"{}/receipt_ar?{}".format(str(frappe.utils.get_url()),pe.name),
-			"message":"Customer {} successfully created and payment received".format(party)
+          	"payment_ID":pe.name,
+			"customer_ID":party,
+			"message":"Payment successfully added against Customer {}".format(party)
    		}
 	except Exception as e:
 		frappe.log_error("Error on Creating Customer",frappe.get_traceback())
@@ -540,3 +540,21 @@ def add_payment(invoice=None):
 
 def get_post_params():
     return json.loads(frappe.request.data)
+
+@frappe.whitelist(allow_guest=True)
+def pdf(payment=None,lang="en"):
+	import requests
+	from frappe.utils.pdf import get_pdf
+	print(payment)
+	try:
+		html = frappe.get_print("Payment Entry", payment, "Mazad Receipt 2.0", doc=frappe.get_doc("Payment Entry",payment), no_letterhead=0)
+		options = {
+			# "margin-right":"0mm",
+			# "margin-left" :"0mm"
+		}
+		frappe.local.response.filename = "{}.pdf".format(payment)
+		frappe.local.response.filecontent = get_pdf(html,options=options)
+		frappe.local.response.type = "pdf"
+	except Exception as e:
+		frappe.log_error("Error on Creating Customer",frappe.get_traceback())
+		return {"success":False,"message":"Something went wroung please ask administrator to check logs"}
