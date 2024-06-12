@@ -531,6 +531,8 @@ def add_payment(invoice=None):
       		"success":True,
           	"payment_ID":pe.name,
 			"customer_ID":party,
+			"inovice_pdf_ar": "{}/api/method/motory.api.pdf?payment={}&_lang=ar".format(str(frappe.utils.get_url()),pe.name),
+			"inovice_pdf_en": "{}/api/method/motory.api.pdf?payment={}&_lang=en".format(str(frappe.utils.get_url()),pe.name),
 			"message":"Payment successfully added against Customer {}".format(party)
    		}
 	except Exception as e:
@@ -543,7 +545,6 @@ def get_post_params():
 
 @frappe.whitelist(allow_guest=True)
 def pdf(payment=None,lang="en"):
-	import requests
 	from frappe.utils.pdf import get_pdf
 	print(payment)
 	try:
