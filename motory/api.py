@@ -84,6 +84,10 @@ def copy_car_fields_to_serial_no_doc(self,method):
 				serial_no_doc=frappe.get_doc('Serial No',serial_no)	
 				serial_no_doc.car_source_cf=item.get("car_source_cf")
 				serial_no_doc.car_plate_no_cf=item.get("car_plate_no_cf")
+
+				if item.get("car_plate_no_cf"):
+					serial_no_doc.total_expense_cf= flt(frappe.db.sql(""" SELECT sum(net_amount) from `tabExpense Item` where car_plate_no='{}' and docstatus=1""".format(item.get("car_plate_no_cf")))[0][0])
+
 				serial_no_doc.car_odometer_cf=item.get("car_odometer_cf")
 				serial_no_doc.item_type_cf=item.get("item_type_cf")
 				serial_no_doc.car_color_cf=item.get("car_color_cf")
