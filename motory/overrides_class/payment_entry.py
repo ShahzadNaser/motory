@@ -59,3 +59,10 @@ class CustomPaymentEntry(PaymentEntry):
                     if ref_doc.docstatus != 1:
                         frappe.throw(_("{0} {1} must be submitted")
                             .format(d.reference_doctype, d.reference_name))
+
+    def update_advance_paid(self):
+        if self.payment_type in ("Receive", "Pay") and self.party:
+            for d in self.get("references"):
+                if d.allocated_amount \
+                    and d.reference_doctype in ("Sales Order", "Purchase Order", "Employee Advance", "Gratuity", "Expenses"):
+                        frappe.get_doc(d.reference_doctype, d.reference_name).set_total_advance_paid()
