@@ -84,6 +84,10 @@ def copy_car_fields_to_serial_no_doc(self,method):
 				serial_no_doc=frappe.get_doc('Serial No',serial_no)	
 				serial_no_doc.car_source_cf=item.get("car_source_cf")
 				serial_no_doc.car_plate_no_cf=item.get("car_plate_no_cf")
+
+				if item.get("car_plate_no_cf"):
+					serial_no_doc.total_expense_cf= flt(frappe.db.sql(""" SELECT sum(net_amount) from `tabExpense Item` where car_plate_no='{}' and docstatus=1""".format(item.get("car_plate_no_cf")))[0][0])
+
 				serial_no_doc.car_odometer_cf=item.get("car_odometer_cf")
 				serial_no_doc.item_type_cf=item.get("item_type_cf")
 				serial_no_doc.car_color_cf=item.get("car_color_cf")
@@ -107,7 +111,7 @@ def copy_car_fields_to_serial_no_doc(self,method):
 				serial_no_doc.save(ignore_permissions=True)				
 				frappe.msgprint(_("VIN Number(Serial No) {0} all car fields are updated"
 				.format(get_link_to_form('Serial No', serial_no))), alert=True)
-			print(self.doctype ,self.get("type") ,item.get("vin_number"))
+
 	if self.doctype=='Purchase Invoice' and self.get("type") == "Expense":
 		vin_numbers = frappe._dict({})
 		for item in self.get("items"):
@@ -406,6 +410,11 @@ def before_save(self,method):
 			self.margin = min(margins)
 		if discounts:
 			self.discount = max(discounts)
+def add_car_plate_no(doc, method):
+	for item in doc.get("items"):
+		if item.get("car_plate_no_cf"):
+			if not frappe.db.get_value("Car Plate No",{"name":item.get("car_plate_no_cf")},"name"):
+				frappe.get_doc({"doctype":"Car Plate No","title":item.get("car_plate_no_cf"),"item_name":item.get("item_name")}).insert()
 
 
 @frappe.whitelist()
@@ -546,7 +555,6 @@ def get_post_params():
 @frappe.whitelist(allow_guest=True)
 def pdf(payment=None,lang="en"):
 	from frappe.utils.pdf import get_pdf
-	print(payment)
 	try:
 		html = frappe.get_print("Payment Entry", payment, "Mazad Receipt 2.0", doc=frappe.get_doc("Payment Entry",payment), no_letterhead=0)
 		options = {
