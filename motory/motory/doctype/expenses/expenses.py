@@ -2,7 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.utils import flt, formatdate
+from frappe.utils import flt, formatdate,nowdate
 from frappe import _
 from frappe.model.document import Document
 from erpnext.accounts.general_ledger import make_gl_entries
@@ -13,6 +13,7 @@ from erpnext.accounts.utils import get_fiscal_years
 class Expenses(Document):
 	def validate(self):
 		# return
+		self.status = "Draft"
 		self.base_grand_total = 0
 		self.total_taxes_and_charges = 0
   
@@ -169,6 +170,27 @@ class Expenses(Document):
 
 		return gl_dict
 
+	def set_total_advance_paid(self):
+		paid_amount = frappe.db.sql("""
+			select ifnull(sum(debit), 0) as paid_amount
+			from `tabGL Entry`
+			where against_voucher_type = 'Expenses'
+				and against_voucher = %s
+				and party_type = 'Supplier'
+				and party = %s
+				and is_cancelled=0
+		""", (self.name, self.supplier), as_dict=1)[0].paid_amount
+
+		outsanding_amount = flt(self.grand_total) - flt(paid_amount)
+		self.db_set("advance_paid", paid_amount)
+		self.db_set("outstanding_amount", outsanding_amount)
+		status = "Paid"
+		if outsanding_amount == self.grand_total:
+			status = "Unpaid"
+		elif  0 < outsanding_amount < self.grand_total:
+			status = "Partly Paid"
+
+		frappe.db.set_value("Expenses", self.name , "status", status)
 
 @frappe.whitelist()
 def get_tax_details(item_tax_template=None):
@@ -178,3 +200,61 @@ def get_tax_details(item_tax_template=None):
 		if tax_templates:
 			return tax_templates
 	return tax_details
+
+@frappe.whitelist()
+def get_payment_entry(dt, dn, party_amount=None, bank_account=None, bank_amount=None):
+	from erpnext.accounts.doctype.journal_entry.journal_entry import get_default_bank_cash_account
+	from erpnext.accounts.doctype.bank_account.bank_account import get_party_bank_account
+
+	doc = frappe.get_doc(dt, dn)
+
+	party_account = doc.get("credit_account")
+	party_account_currency = doc.get("currency")
+	payment_type = "Pay"
+
+	outstanding_amount = flt(doc.grand_total) - flt(doc.advance_paid)
+
+	paid_amount = received_amount = abs(outstanding_amount)
+	# bank or cash
+	bank = get_default_bank_cash_account(doc.company, "Bank", mode_of_payment="Bank Draft",account=bank_account)
+
+	if not bank:
+		bank = get_default_bank_cash_account(doc.company, "Cash", mode_of_payment="Cash",account=bank_account)
+	pe = frappe.new_doc("Payment Entry")
+	pe.payment_type = payment_type
+	pe.company = doc.company
+	pe.cost_center = doc.get("cost_center")
+	pe.posting_date = nowdate()
+	pe.mode_of_payment = doc.get("mode_of_payment")
+	pe.party_type = "Supplier"
+	pe.party = doc.get("supplier")
+	pe.ensure_supplier_is_not_blocked()
+
+	pe.paid_from = party_account if payment_type == "Receive" else bank.account
+	pe.paid_to = party_account if payment_type == "Pay" else bank.account
+	pe.paid_from_account_currency = party_account_currency \
+		if payment_type == "Receive" else bank.account_currency
+	pe.paid_to_account_currency = party_account_currency if payment_type == "Pay" else bank.account_currency
+	pe.paid_amount = paid_amount
+	pe.received_amount = received_amount
+
+	bank_account = get_party_bank_account(pe.party_type, pe.party)
+	pe.set("bank_account", bank_account)
+	pe.set_bank_account_data()
+
+	pe.append("references", {
+		'reference_doctype': dt,
+		'reference_name': dn,
+		"bill_no": doc.get("name"),
+		"due_date": doc.get("posting_date"),
+		'total_amount': doc.grand_total,
+		'outstanding_amount': outstanding_amount,
+		'allocated_amount': outstanding_amount
+	})
+
+	pe.setup_party_account_field()
+	pe.set_missing_values()
+	if party_account and bank:
+		pe.set_exchange_rate()
+		pe.set_amounts()
+	return pe
