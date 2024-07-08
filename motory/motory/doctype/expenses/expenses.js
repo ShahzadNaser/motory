@@ -3,6 +3,24 @@
 
 frappe.ui.form.on('Expenses', {
 	refresh: function(frm) {
+		if(frm.doc.docstatus ==1) {
+			frm.add_custom_button(__('Accounting Ledger'), function() {
+				frappe.route_options = {
+					voucher_no: frm.doc.name,
+					from_date: frm.doc.posting_date,
+					to_date: frm.doc.posting_date,
+					company: frm.doc.company,
+					group_by: '',
+					show_cancelled_entries: frm.doc.docstatus === 2
+				};
+				frappe.set_route("query-report", "General Ledger");
+			});
+		}
+		if(frm.doc.docstatus===1 && frm.doc.outstanding_amount!=0) {
+			frm.add_custom_button(__("Payment"), function() {
+				frm.events.make_payment_entry(frm);
+			});
+		}
 	},
 	calculate_totals: function(frm){
 		let totals = {
@@ -31,7 +49,22 @@ frappe.ui.form.on('Expenses', {
 	},
 	before_save: function(frm){
 		frm.trigger("calculate_totals");
-	}
+	},
+	make_payment_entry: function(frm) {
+		return frappe.call({
+			method: "motory.motory.doctype.expenses.expenses.get_payment_entry",
+			args: {
+				"dt": frm.doc.doctype,
+				"dn": frm.doc.name,
+				"party_type": "Supplier",
+				"payment_type": "Pay",
+			},
+			callback: function(r) {
+				var doc = frappe.model.sync(r.message);
+				frappe.set_route("Form", doc[0].doctype, doc[0].name);
+			}
+		});
+	},
 });
 
 frappe.ui.form.on('Expense Item', {
@@ -51,7 +84,6 @@ frappe.ui.form.on('Expense Item', {
 					}
 				}
 			});
-	
 		}else{
 			frm.trigger("calculate_totals");
 		}
