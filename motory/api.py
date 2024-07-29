@@ -499,14 +499,14 @@ def add_payment(invoice=None):
 		return {"success":False,"message":"Paid Amount is required."}
 	try:
 		# Create the customer
-		party = frappe.db.get_value("Customer",{"mazad_user_id": params.get("customer_name")},"name")
+		party = frappe.db.get_value("Customer",{"mazad_user_id": params.get("mazad_user_id")},"name")
 		if not party:
 			customer = frappe.get_doc({
 				"doctype": "Customer",
 				"customer_name": params.get("customer_name_en") or params.get("customer_name"),
 				"customer_name_in_arabic": params.get("customer_name"),
-				"iban": params.get("customer_name"),
-				"mazad_user_id": params.get("customer_name"),
+				# "iban": params.get("customer_name"),
+				"mazad_user_id": params.get("mazad_user_id"),
 				"customer_type": "Individual",
 				"customer_group": "All Customer Groups",
 				"territory": "All Territories"
