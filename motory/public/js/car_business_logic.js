@@ -90,7 +90,7 @@ function set_rate_for_second_hand_car(frm, cdt, cdn) {
                     expense_entry_urls += '<a href="/app/expense-entry/' + records[index].name + '">' + records[index].name + '</a> &nbsp;'
                 }
             }
-            frappe.db.get_value('Serial No', d.serial_no_cf, ['purchase_rate', 'gp_percent_cf'])
+            frappe.db.get_value('Serial No', d.serial_no_cf, ['purchase_rate', 'gp_percent_cf', 'item_code'])
                 .then(r => {
                     let values = r.message;
                     if (values) {
@@ -99,6 +99,8 @@ function set_rate_for_second_hand_car(frm, cdt, cdn) {
 
                         let rate = flt(expense_entry_total + values.purchase_rate + flt(purchase_rate * gp_percent_cf / 100.0, precision("rate", d)));
                         frappe.model.set_value(cdt, cdn, 'rate', rate);
+                        if(["Quotation","Sales Invoice"].includes(frm.doc.doctype))
+                            frappe.model.set_value(cdt, cdn, 'item_code', values.item_code);
                         refresh_field("items");
                         let serial_no_url = '<a href="/app/serial-no/' + d.serial_no_cf + '">' + d.serial_no_cf + '</a>'
                         if (expense_entry_urls!='') {

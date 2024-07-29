@@ -5,7 +5,7 @@ frappe.ui.form.on('Sales Invoice', {
         frm.set_query('serial_no_cf', 'items', (frm, cdt, cdn) => {
             var d = frappe.model.get_doc(cdt, cdn);
             var car_status_cf
-            if (frm.doc.is_return == 1 && frm.doc.update_stock == 1) {
+            if (cur_frm.doc.is_return && cur_frm.doc.update_stock) {
                 car_status_cf = ['Sold Out']
             } else {
                 car_status_cf = ['Available']
@@ -50,6 +50,23 @@ frappe.ui.form.on('Sales Invoice', {
                 $('[data-name="'+item.name+'"]').css('background-color',color);
             }
         });
+        if(frm.doc.docstatus == 5 && frappe.user_roles.includes("Accounts Manager")){
+			cur_frm.add_custom_button(__('Regenrate QR Code'),function(frm) {
+				frappe.call({
+					method: "motory.api.regenrate_qr_code",
+					args: {"invoice":cur_frm.doc.name || ""},
+					debounce: 3000,
+					callback: function(r){
+						console.log(r.message);
+						frappe.show_alert({
+							message: __("Updating QR Code ...."),
+							indicator: "blue",
+						});
+						cur_frm.reload_doc();
+					}
+				})
+			});
+        }
     }
 });
 

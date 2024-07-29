@@ -98,9 +98,10 @@ doctype_list_js = {"Serial No" : "public/js/serial_no_list.js"}
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Journal Entry": "motory.overrides.journal_entry.CustomJournalEntry",
+	"Payment Entry": "motory.overrides_class.payment_entry.CustomPaymentEntry"
+}
 
 # Document Events
 # ---------------
@@ -117,9 +118,12 @@ doc_events = {
 		"on_update_after_submit" :  "motory.api.sync_accessories_inspection_details",
 		"on_cancel": "motory.api.update_car_status"
 		},
+	"Purchase Order":{
+		"before_save":"motory.api.add_car_plate_no"
+	},
 	"Purchase Receipt": { 
 		"before_validate":"motory.api.copy_car_serial_to_vin",
-		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_single_serial_no"],
+		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_single_serial_no","motory.api.add_car_plate_no"],
 		"on_submit": ["motory.api.update_car_status","motory.api.copy_car_fields_to_serial_no_doc"],
 		"on_update_after_submit": "motory.api.sync_accessories_inspection_details",
 		"on_cancel": "motory.api.update_car_status"

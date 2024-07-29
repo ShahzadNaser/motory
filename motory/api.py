@@ -34,9 +34,10 @@ def calculate_total_expense_cf_in_serial_no(serial_no):
 
 
 def before_save_pi(doc,method):
-	if doc.get("type") == "Expense" and doc.get("serial_no"):
-		if doc.get("serial_no") not in doc.get("remarks"):
-			doc.remarks = "Expense Entry For Serial No # {}".format(doc.get("serial_no"))
+	if doc.get("type") == "Expense":
+		vin_numbers =  ','.join(item.get("vin_number") or "" for item in doc.get("items"))
+		if len(vin_numbers) > 4:
+			doc.remarks = "Expense Entry For VIN Numbers # {}".format(vin_numbers)
 		
 def update_car_status_to_available_for_expired_quotations():
 	expired_quotations=frappe.db.get_list('Quotation', filters={'valid_till': ['<', getdate(today())],'docstatus':1,'status': ['!=', 'Expired']},fields=['name'])
@@ -64,7 +65,7 @@ def copy_car_serial_to_vin(self,method):
 
 def fetch_used_car_details(self,method):
 	for item in self.get("items"):
-		if item.item_type_cf=='Used Car':
+		if item.get("item_type_cf")=='Used Car':
 			serial_nos=get_serial_nos(item.serial_no)
 			if len(serial_nos)>0:		
 				serial_no=serial_nos[0]
@@ -83,6 +84,10 @@ def copy_car_fields_to_serial_no_doc(self,method):
 				serial_no_doc=frappe.get_doc('Serial No',serial_no)	
 				serial_no_doc.car_source_cf=item.get("car_source_cf")
 				serial_no_doc.car_plate_no_cf=item.get("car_plate_no_cf")
+
+				if item.get("car_plate_no_cf"):
+					serial_no_doc.total_expense_cf= flt(frappe.db.sql(""" SELECT sum(net_amount) from `tabExpense Item` where car_plate_no='{}' and docstatus=1""".format(item.get("car_plate_no_cf")))[0][0])
+
 				serial_no_doc.car_odometer_cf=item.get("car_odometer_cf")
 				serial_no_doc.item_type_cf=item.get("item_type_cf")
 				serial_no_doc.car_color_cf=item.get("car_color_cf")
@@ -106,10 +111,20 @@ def copy_car_fields_to_serial_no_doc(self,method):
 				serial_no_doc.save(ignore_permissions=True)				
 				frappe.msgprint(_("VIN Number(Serial No) {0} all car fields are updated"
 				.format(get_link_to_form('Serial No', serial_no))), alert=True)
-	if self.doctype=='Purchase Invoice' and self.get("type") == "Expense" and self.get("serial_no"):
-		total_expense = frappe.db.get_value('Serial No', self.get("serial_no"), 'total_expense_cf') or 0 + self.get("total")
-		frappe.db.set_value('Serial No', self.get("serial_no"), 'total_expense_cf', total_expense)
-		# frappe.db.commit()
+
+	if self.doctype=='Purchase Invoice' and self.get("type") == "Expense":
+		vin_numbers = frappe._dict({})
+		for item in self.get("items"):
+			if self.doctype=='Purchase Invoice' and self.get("type") == "Expense" and item.get("vin_number"):
+				expense = frappe.db.get_value('Serial No', item.get("vin_number"), 'total_expense_cf') or 0
+				if not vin_numbers.get(item.get("vin_number")):
+					vin_numbers[item.get("vin_number")] = expense + item.get("amount") or 0
+				else:
+					vin_numbers[item.get("vin_number")] += item.get("amount") or 0
+		if vin_numbers and self.doctype=='Purchase Invoice' and self.get("type") == "Expense":
+			for vin in vin_numbers:
+				frappe.db.set_value('Serial No', vin , 'total_expense_cf', vin_numbers.get(vin))
+			frappe.db.commit()
 
 
 def sync_accessories_inspection_details(self,method):
@@ -146,13 +161,13 @@ def fetch_accessories_inspection_details(self,method):
 	if ((self.doctype=='Purchase Receipt') or (self.doctype=='Delivery Note') or (self.doctype=='Stock Entry' and self.get("stock_entry_type")=="Material Receipt")
 		or (self.doctype=='Purchase Invoice' and  self.get("update_stock") == 1)):
 		motory_settings=frappe.get_doc('Motory Settings','Motory Settings')
-		if not self.car_accessories_detail_cf:
+		if not self.get("car_accessories_detail_cf"):
 			for accessory in motory_settings.get("car_accessories_detail"):
 				accessory_row=self.append('car_accessories_detail_cf',{})
 				accessory_row.accessory=accessory.accessory
 				accessory_row.is_available=accessory.is_available
 
-		if not self.car_predelivery_inspection_checklist_cf:
+		if not self.get("car_predelivery_inspection_checklist_cf"):
 			for checklist in motory_settings.get("car_predelivery_inspection_checklist"):
 				checklist_row=self.append('car_predelivery_inspection_checklist_cf',{})
 				checklist_row.predelivery_check=checklist.predelivery_check
@@ -342,7 +357,7 @@ def validate_serial_no_and_qty(self,method):
 		if self.get("stock_entry_type")=="Material Receipt" :
 			item_count=len(self.items)
 			for item in self.items:
-				if item.item_type_cf in ['New Car','Used Car']:
+				if item.get("item_type_cf") in ['New Car','Used Car']:
 					if item_count>1:
 							frappe.throw(_("For Material Receipt, single row is allowd for New/Used Car."))
 					if item.qty>1:
@@ -353,7 +368,7 @@ def validate_serial_no_and_qty(self,method):
 							.format(item.idx, frappe.bold(len(serial_nos))))   
 		elif self.get("stock_entry_type")=="Material Transfer" :
 			for item in self.items:
-				if item.item_type_cf in ['New Car','Used Car']:
+				if item.get("item_type_cf") in ['New Car','Used Car']:
 					if item.qty>1:
 							frappe.throw(_("For Material Transfer, only single qty is allowd for New/Used Car."))						
 					serial_nos=get_serial_nos(item.serial_no)
@@ -395,6 +410,11 @@ def before_save(self,method):
 			self.margin = min(margins)
 		if discounts:
 			self.discount = max(discounts)
+def add_car_plate_no(doc, method):
+	for item in doc.get("items"):
+		if item.get("car_plate_no_cf"):
+			if not frappe.db.get_value("Car Plate No",{"name":item.get("car_plate_no_cf")},"name"):
+				frappe.get_doc({"doctype":"Car Plate No","title":item.get("car_plate_no_cf"),"item_name":item.get("item_name")}).insert()
 
 
 @frappe.whitelist()
@@ -422,7 +442,7 @@ def create_stock_entry(sales_order):
 		se_item.car_source_cf=frappe.db.get_value('Serial No', so_item.serial_no_cf, 'car_source_cf') or None
 		se_item.car_parking_no_cf=frappe.db.get_value('Serial No', so_item.serial_no_cf, 'car_parking_no_cf') or None
 		se_item.car_line_no_cf=frappe.db.get_value('Serial No', so_item.serial_no_cf, 'car_line_no_cf') or None
-		se_item.item_type_cf=so_item.item_type_cf
+		se_item.item_type_cf=so_item.get("item_type_cf")
 		se_item.qty=so_item.qty
 		se_item.transfer_qty=so_item.qty
 		se_item.uom=so_item.uom
@@ -450,3 +470,100 @@ def create_stock_entry(sales_order):
         
     #     if result:
     #         row.expense_account = result[0]['account'] if result else None
+
+
+@frappe.whitelist()
+def regenrate_qr_code(invoice=None):
+	from erpnext.regional.saudi_arabia.utils import create_qr_code
+	frappe.log_error(message="{0}".format(invoice) , title="=====")
+	if invoice and frappe.db.exists("Sales Invoice",invoice):
+		frappe.log_error(message="{0}".format(invoice) , title="=====")
+		doc = frappe.get_doc("Sales Invoice",invoice)
+		create_qr_code(doc,"custom")
+		frappe.db.commit()
+		frappe.log_error(message="{0}".format(invoice) , title="=====")
+	return True
+
+
+@frappe.whitelist()
+def add_payment(invoice=None):
+	response = {}
+	params = get_post_params()
+	if not params:
+		return {"success":False,"message":"No request payload found"}
+	if not params.get("customer_name") and not params.get("customer_name_en"):
+		return {"success":False,"message":"Customer Name is required."}
+	if not params.get("mazad_user_id"):
+		return {"success":False,"message":"Mazad User ID must required."}
+	if not params.get("paid_amount"):
+		return {"success":False,"message":"Paid Amount is required."}
+	try:
+		# Create the customer
+		party = frappe.db.get_value("Customer",{"mazad_user_id": params.get("mazad_user_id")},"name")
+		if not party:
+			customer = frappe.get_doc({
+				"doctype": "Customer",
+				"customer_name": params.get("customer_name_en") or params.get("customer_name"),
+				"customer_name_in_arabic": params.get("customer_name"),
+				# "iban": params.get("customer_name"),
+				"mazad_user_id": params.get("mazad_user_id"),
+				"customer_type": "Individual",
+				"customer_group": "All Customer Groups",
+				"territory": "All Territories"
+			})
+			customer.flags.ignore_permissions = 1
+			customer.insert()
+			frappe.db.commit()  # Commit to save the customer
+			party = customer.name		
+		# Create the payment entry
+		pe = frappe.new_doc("Payment Entry")
+		pe.payment_type = "Receive"
+		pe.company = frappe.defaults.get_global_default("company")
+		pe.posting_date = frappe.utils.nowdate()
+		pe.mode_of_payment =  "Wire Transfer"
+		pe.party_type = "Customer"
+		pe.party = party
+
+		pe.paid_from = "1142001 - Account Receivable - MS"
+		pe.paid_to = frappe.db.get_value("Mode of Payment Account",{"parent":"Wire Transfer","company":frappe.defaults.get_global_default("company")},"default_account")
+		pe.paid_from_account_currency = "SAR"
+		pe.paid_to_account_currency = "SAR"
+		pe.paid_amount = flt(params.get("paid_amount"))
+		pe.received_amount = flt(params.get("paid_amount"))
+		pe.total_allocated_amount = flt(params.get("paid_amount"))
+		pe.reference_no = "AUTO"
+		pe.reference_date = frappe.utils.nowdate()
+		pe.flags.ignore_permissions = 1
+		pe.insert()
+		frappe.db.commit()  # Commit to save the payment entry
+		return {
+      		"success":True,
+          	"payment_ID":pe.name,
+			"customer_ID":party,
+			"inovice_pdf_ar": "{}/api/method/motory.api.pdf?payment={}&_lang=ar".format(str(frappe.utils.get_url()),pe.name),
+			"inovice_pdf_en": "{}/api/method/motory.api.pdf?payment={}&_lang=en".format(str(frappe.utils.get_url()),pe.name),
+			"message":"Payment successfully added against Customer {}".format(party)
+   		}
+	except Exception as e:
+		frappe.log_error("Error on Creating Customer",frappe.get_traceback())
+		return {"success":False,"message":"Something went wroung please ask administrator to check logs"}
+
+
+def get_post_params():
+    return json.loads(frappe.request.data)
+
+@frappe.whitelist(allow_guest=True)
+def pdf(payment=None,lang="en"):
+	from frappe.utils.pdf import get_pdf
+	try:
+		html = frappe.get_print("Payment Entry", payment, "Mazad Receipt 2.0", doc=frappe.get_doc("Payment Entry",payment), no_letterhead=0)
+		options = {
+			# "margin-right":"0mm",
+			# "margin-left" :"0mm"
+		}
+		frappe.local.response.filename = "{}.pdf".format(payment)
+		frappe.local.response.filecontent = get_pdf(html,options=options)
+		frappe.local.response.type = "pdf"
+	except Exception as e:
+		frappe.log_error("Error on Creating Customer",frappe.get_traceback())
+		return {"success":False,"message":"Something went wroung please ask administrator to check logs"}
