@@ -25,7 +25,7 @@ class Expenses(Document):
 			self.total_taxes_and_charges += flt(row.tax_amount)
 			row.net_amount = flt(row.tax_amount) + flt(row.get("amount"))
 		self.grand_total = flt(self.base_grand_total) + flt(self.total_taxes_and_charges)
-		self.outstanding_amount = self.grand_total - self.advance_paid
+		self.outstanding_amount = flt(self.grand_total) - flt(self.advance_paid)
 
 	def before_submit(self):
 		self.status = "Unpaid"
