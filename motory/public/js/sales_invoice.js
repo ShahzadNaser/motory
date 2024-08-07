@@ -78,10 +78,13 @@ frappe.ui.form.on("Sales Invoice Item", {
             {
                 name: item.serial_no_cf
             },
-            "purchase_rate",
+            ["purchase_rate","total_expense_cf"],
             (r) => {
+                console.log(r.total_expense_cf);
+                
                 if (r) {
                     frappe.model.set_value(cdt, cdn, "purchase_rate", r.purchase_rate);
+                    frappe.model.set_value(cdt, cdn, "rate", r.total_expense_cf + r.purchase_rate);
                     frm.trigger("rate", cdt, cdn);
                 }
             }
