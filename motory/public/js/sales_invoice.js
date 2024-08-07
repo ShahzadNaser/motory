@@ -84,7 +84,7 @@ frappe.ui.form.on("Sales Invoice Item", {
                 
                 if (r) {
                     frappe.model.set_value(cdt, cdn, "purchase_rate", r.purchase_rate);
-                    frappe.model.set_value(cdt, cdn, "rate", r.total_expense_cf);
+                    frappe.model.set_value(cdt, cdn, "rate", r.total_expense_cf + r.purchase_rate);
                     frm.trigger("rate", cdt, cdn);
                 }
             }
