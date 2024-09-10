@@ -60,7 +60,7 @@ frappe.ui.form.on(cur_frm.doctype+" Item", {
     serial_no_cf: function (frm, cdt, cdn) {
         var d = frappe.model.get_doc(cdt, cdn);
         if (d.serial_no_cf &&  d.serial_no_cf != '') {
-            set_rate_for_second_hand_car(frm, cdt, cdn)
+         // set_rate_for_second_hand_car(frm, cdt, cdn)
         }
         // copy serial_no_cf --> serial_no
         if (d.serial_no_cf && (['Sales Invoice','Delivery Note'].includes(frm.doctype))) {
@@ -68,7 +68,7 @@ frappe.ui.form.on(cur_frm.doctype+" Item", {
         }
     },
     item_type_cf: function (frm, cdt, cdn) {
-        set_rate_for_second_hand_car(frm, cdt, cdn)
+        //set_rate_for_second_hand_car(frm, cdt, cdn)
     }
 })
 

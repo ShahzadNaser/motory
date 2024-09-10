@@ -81,9 +81,15 @@ def copy_car_fields_to_serial_no_doc(self,method):
 			serial_nos=get_serial_nos(item.serial_no)
 			if len(serial_nos)>0:		
 				serial_no=serial_nos[0]
+				if not frappe.db.exists('Serial No', serial_no):
+					continue
+
 				serial_no_doc=frappe.get_doc('Serial No',serial_no)	
 				serial_no_doc.car_source_cf=item.get("car_source_cf")
 				serial_no_doc.car_plate_no_cf=item.get("car_plate_no_cf")
+
+				if item.get("car_vin_no"):
+					serial_no_doc.car_vin_no=item.get("car_vin_no")
 
 				if item.get("car_plate_no_cf"):
 					serial_no_doc.total_expense_cf= flt(frappe.db.sql(""" SELECT sum(net_amount) from `tabExpense Item` where car_plate_no='{}' and docstatus=1""".format(item.get("car_plate_no_cf")))[0][0])
@@ -532,7 +538,7 @@ def add_payment(invoice=None):
 		pe.party_type = "Customer"
 		pe.party = party
 
-		pe.paid_from = "1142001 - Account Receivable - MS"
+		pe.paid_from =  frappe.db.get_value("Company",frappe.defaults.get_global_default("company"),"default_receivable_account") or "1142001 - Account Receivable - ALJ Technology"
 		pe.paid_to = frappe.db.get_value("Mode of Payment Account",{"parent":"Wire Transfer","company":frappe.defaults.get_global_default("company")},"default_account")
 		pe.paid_from_account_currency = "SAR"
 		pe.paid_to_account_currency = "SAR"
@@ -556,6 +562,11 @@ def add_payment(invoice=None):
 		frappe.log_error("Error on Creating Customer",frappe.get_traceback())
 		return {"success":False,"message":"Something went wroung please ask administrator to check logs"}
 
+def bs_serial_no(doc,method):
+	if doc.get("car_plate_no_cf"):
+		if frappe.db.get_value("GL Entry",{"remarks":str(doc.get("car_plate_no_cf"))},"name"):
+			frappe.db.sql(""" UPDATE `tabGL Entry` set serial_no='{}' where remarks='{}' """.format(str(doc.get("name")),str(doc.get("car_plate_no_cf"))))
+			frappe.db.commit()
 
 def get_post_params():
     return json.loads(frappe.request.data)

@@ -100,6 +100,7 @@ doctype_list_js = {"Serial No" : "public/js/serial_no_list.js"}
 
 override_doctype_class = {
 	"Journal Entry": "motory.overrides.journal_entry.CustomJournalEntry",
+	"Sales Invoice": "motory.overrides_class.sales_invoice.CustomSalesInvoice",
 	"Payment Entry": "motory.overrides_class.payment_entry.CustomPaymentEntry"
 }
 
@@ -108,10 +109,10 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-	"*"
 	"Serial No": { 
-		"validate": "motory.api.update_car_status"
-		},
+		"validate": "motory.api.update_car_status",
+		"before_save": "motory.api.bs_serial_no"
+	},
 	"Stock Entry": { 
 		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_serial_no_and_qty"],
 		"on_submit": ["motory.api.update_car_status","motory.api.copy_car_fields_to_serial_no_doc"],

@@ -21,6 +21,22 @@ frappe.ui.form.on('Expenses', {
 				frm.events.make_payment_entry(frm);
 			});
 		}
+		frm.set_query("account", "expenses", function(doc, cdt, cdn) {
+			return {
+				filters: {
+					is_group: 0,
+					company: cur_frm.doc.company,
+				},
+			};
+		});
+		frm.set_query("expense_account", "expenses", function(doc, cdt, cdn) {
+			return {
+				filters: {
+					is_group: 0,
+					company: cur_frm.doc.company,
+				},
+			};
+		});
 	},
 	calculate_totals: function(frm){
 		let totals = {

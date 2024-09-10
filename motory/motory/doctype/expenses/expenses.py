@@ -16,16 +16,22 @@ class Expenses(Document):
 		self.status = "Draft"
 		self.base_grand_total = 0
 		self.total_taxes_and_charges = 0
-  
+		cn_or_vin = True 
 		for row in self.get("expenses"):
+			if not row.get("car_plate_no") and not row.get("serial_no"):
+				cn_or_vin = False
 			self.base_grand_total += flt(row.get("amount"))
 			if row.get("tax_rate"):
 				row.tax_amount = flt(row.get("amount") * (row.get("tax_rate")/100)) or 0
     
 			self.total_taxes_and_charges += flt(row.tax_amount)
 			row.net_amount = flt(row.tax_amount) + flt(row.get("amount"))
+
 		self.grand_total = flt(self.base_grand_total) + flt(self.total_taxes_and_charges)
 		self.outstanding_amount = flt(self.grand_total) - flt(self.advance_paid)
+
+		if not cn_or_vin:
+			frappe.throw("Car Plate No. or Serial No must required in Expenses")
 
 	def before_submit(self):
 		self.status = "Unpaid"
@@ -75,6 +81,9 @@ class Expenses(Document):
 		taxes = {}
 		if self.get("expenses"):
 			for item in self.expenses:
+				serial_no = item.get("serial_no") or frappe.db.get_value('Serial No', {"car_plate_no_cf":item.get("car_plate_no")}, 'name') or ""
+				sales_invoice = frappe.db.get_value('Sales Invoice Item', {"serial_no":serial_no,"docstatus":1}, 'parent') or frappe.db.get_value('Sales Invoice Item', {"car_plate_no_cf":serial_no,"docstatus":1}, 'parent') or ""
+
 				gl_entries.append(
 					self.get_gl_dict(
 						{
@@ -89,6 +98,7 @@ class Expenses(Document):
 							"party_type": "Supplier",
 							"party": self.supplier,
 							"cost_center": self.get("cost_center") or frappe.db.get_value("Company",self.company,"cost_center") or "",
+							"serial_no":serial_no,
 							"remarks": item.get("car_plate_no")
 						},
 						item=self,
@@ -98,7 +108,7 @@ class Expenses(Document):
 				gl_entries.append(
 					self.get_gl_dict(
 						{
-							"account": item.account,
+							"account": item.expense_account if sales_invoice else  item.account ,
 							"debit": item.amount,
 							"debit_in_account_currency": item.amount,
 							"against": self.credit_account,
@@ -108,6 +118,7 @@ class Expenses(Document):
 							"posting_date": self.posting_date,
 							"company": self.company,
 							"remarks": item.get("car_plate_no"),							
+							"serial_no":serial_no
 						},
 						item=self,
 					)
@@ -125,6 +136,7 @@ class Expenses(Document):
 							"posting_date": self.posting_date,
 							"company": self.company,
 							"remarks": item.get("car_plate_no"),							
+							"serial_no":serial_no
 						},
 						item=self,
 					))
