@@ -32,9 +32,7 @@ class CustomSalesInvoice(SalesInvoice):
         return gl_entries
   
     def make_expenses_entries(self,gl_entries):
-        frappe.log_error(title="testin11111",message = str("1111111111"))
         if cint(self.update_stock):
-            frappe.log_error(title="testin22222",message = str("2222222"))
             serial_nos_cond = "" 
             car_plate_nos_cond = ""
             cond = " docstatus = 1 "
@@ -55,7 +53,7 @@ class CustomSalesInvoice(SalesInvoice):
                 if serial_no not in expenses:
                     expenses[serial_no] = []
                 expenses[serial_no].append(row)
-            frappe.log_error(title="testin1",message = str(expenses))
+
             for item in self.get("items"):
                 if expenses.get(item.get("serial_no")) or expenses.get(item.get("car_plate_no_cf")):
                     for row in expenses.get(item.get("serial_no")) or expenses.get(item.get("car_plate_no_cf")):
