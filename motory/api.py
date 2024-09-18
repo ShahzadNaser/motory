@@ -416,6 +416,13 @@ def before_save(self,method):
 			self.margin = min(margins)
 		if discounts:
 			self.discount = max(discounts)
+
+def recalculate_taxes(doc,method=None):
+	if doc.get("reference_id"):
+		doc.set_missing_values()
+		doc.calculate_taxes_and_totals()
+
+
 def add_car_plate_no(doc, method):
 	for item in doc.get("items"):
 		if item.get("car_plate_no_cf"):
