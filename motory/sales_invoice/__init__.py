@@ -28,7 +28,7 @@ def add(invoice=None):
         si.update_stock = 0
         si.set_posting_time = 1
         si.reference_id = params.get("reference_id")
-        si.cost_center = "Main - MS" or "1004 - Marketing Services - ALJTech"
+        si.cost_center = "1004 - Marketing Services - ALJTech"
         if params.get("service_type") == "Marketing":
             si.customer = "الايرادات من الاعلانت الخدمة الذاتية"
         elif params.get("service_type") == "Valuation":
@@ -40,7 +40,7 @@ def add(invoice=None):
             'uom':'Nos',
             'qty':  1,
             'rate':flt(params.get("amount")),
-            'item_tax_template': "VAT 15% - MS" or "B1 - KSA Sales VAT 15% - مبيعات"
+            'item_tax_template': "B1 - KSA Sales VAT 15% - مبيعات"
         })
         si.set("payment_schedule",[])
         si.flags.ignore_permissions = 1
