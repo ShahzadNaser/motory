@@ -42,6 +42,7 @@ def add(invoice=None):
             'rate':flt(params.get("amount")),
             'item_tax_template': "B1 - KSA Sales VAT 15% - مبيعات"
         })
+        si.taxes_and_charges = "B1 - Goods / Services Domestic Supply 15%"
         si.set("payment_schedule",[])
         si.flags.ignore_permissions = 1
         si.insert()
@@ -75,5 +76,5 @@ def pdf(invoice=None,lang="en"):
         frappe.local.response.filecontent = get_pdf(html,options=options)
         frappe.local.response.type = "pdf"
     except Exception as e:
-        frappe.log_error("Error on Creating Customer",frappe.get_traceback())
+        frappe.log_error("Error on getting print",frappe.get_traceback())
         return {"success":False,"message":"Something went wroung please ask administrator to check logs"}
