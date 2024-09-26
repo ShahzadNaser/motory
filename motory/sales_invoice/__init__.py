@@ -50,9 +50,9 @@ def add(invoice=None):
         frappe.db.commit()  # Commit to save the payment entry
         return {
                 "success":True,
-                "Invoice":si.name,
-                "inovice_pdf_ar": "{}/api/method/motory.sales_invoice.pdf?invoice={}&_lang=ar".format(str(frappe.utils.get_url()),si.name),
-                "inovice_pdf_en": "{}/api/method/motory.sales_invoice.pdf?invoice={}&_lang=en".format(str(frappe.utils.get_url()),si.name),
+                "invoice":si.name,
+                "invoice_pdf_ar": "{}/api/method/motory.sales_invoice.pdf?invoice={}&_lang=ar".format(str(frappe.utils.get_url()),si.name),
+                "invoice_pdf_en": "{}/api/method/motory.sales_invoice.pdf?invoice={}&_lang=en".format(str(frappe.utils.get_url()),si.name),
                 "message":"Invoice successfully created"
             }
     except Exception as e:
