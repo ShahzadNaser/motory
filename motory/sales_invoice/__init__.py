@@ -39,7 +39,7 @@ def add(invoice=None):
             'item_name':"Marketing Services - خدمات التسويق",
             'uom':'Nos',
             'qty':  1,
-            'rate':flt(params.get("amount")) - (flt(params.get("amount"))*0.15),
+            'rate':flt(flt(params.get("amount"))/1.15),
             'item_tax_template': "B1 - KSA Sales VAT 15% - مبيعات"
         })
         si.taxes_and_charges = "B1 - Goods / Services Domestic Supply 15%"
