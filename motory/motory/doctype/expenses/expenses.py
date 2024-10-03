@@ -80,38 +80,35 @@ class Expenses(Document):
 		gl_entries = []
 		taxes = {}
 		if self.get("expenses"):
+			gl_entries.append(
+				self.get_gl_dict(
+					{
+						"account": self.credit_account,
+						"credit": self.grand_total,
+						"credit_in_account_currency": self.grand_total,
+						"party": self.supplier,
+						"voucher_type": "Expenses",
+						"voucher_no": self.name,
+						"posting_date": self.posting_date,
+						"company": self.company,
+						"party_type": "Supplier",
+						"party": self.supplier,
+						"cost_center": self.get("cost_center") or frappe.db.get_value("Company",self.company,"cost_center") or ""
+					},
+					item=self,
+				)
+			)
+
 			for item in self.expenses:
 				serial_no = item.get("serial_no") or frappe.db.get_value('Serial No', {"car_plate_no_cf":item.get("car_plate_no")}, 'name') or ""
 				sales_invoice = frappe.db.get_value('Sales Invoice Item', {"serial_no":serial_no,"docstatus":1}, 'parent') or frappe.db.get_value('Sales Invoice Item', {"car_plate_no_cf":serial_no,"docstatus":1}, 'parent') or ""
-
-				gl_entries.append(
-					self.get_gl_dict(
-						{
-							"account": self.credit_account,
-							"credit": item.net_amount,
-							"credit_in_account_currency": item.net_amount,
-							"against": item.account,
-							"voucher_type": "Expenses",
-							"voucher_no": self.name,
-							"posting_date": self.posting_date,
-							"company": self.company,
-							"party_type": "Supplier",
-							"party": self.supplier,
-							"cost_center": self.get("cost_center") or frappe.db.get_value("Company",self.company,"cost_center") or "",
-							"serial_no":serial_no,
-							"remarks": item.get("car_plate_no")
-						},
-						item=self,
-					)
-				)
-
 				gl_entries.append(
 					self.get_gl_dict(
 						{
 							"account": item.expense_account if sales_invoice else  item.account ,
 							"debit": item.amount,
 							"debit_in_account_currency": item.amount,
-							"against": self.credit_account,
+							"party_type": "Supplier",
 							"against_voucher_type": "Expenses",
 							"against_voucher": self.name,
 							"cost_center": item.get("cost_center") or self.get("cost_center") or frappe.db.get_value("Company",self.company,"cost_center") or "",
@@ -124,22 +121,27 @@ class Expenses(Document):
 					)
 				)
 				if item.get("tax_amount"):
+					if item.account_head not in taxes:
+						taxes[item.account_head] = flt(0)
+					taxes[item.account_head] += flt(item.tax_amount)
+
+			if taxes:
+				for account_head in taxes: 
 					gl_entries.append(self.get_gl_dict(
 						{
-							"account": item.account_head,
-							"debit": item.tax_amount,
-							"debit_in_account_currency": item.tax_amount,
+							"account": account_head,
+							"debit": taxes.get(account_head,0),
+							"debit_in_account_currency": taxes.get(account_head,0),
 							"against": self.credit_account,
 							"against_voucher_type": "Expenses",
 							"against_voucher": self.name,
-							"cost_center": item.get("cost_center") or self.get("cost_center") or frappe.db.get_value("Company",self.company,"cost_center") or "",
+							"cost_center": self.get("cost_center") or frappe.db.get_value("Company",self.company,"cost_center") or "",
 							"posting_date": self.posting_date,
-							"company": self.company,
-							"remarks": item.get("car_plate_no"),							
-							"serial_no":serial_no
+							"company": self.company
 						},
 						item=self,
 					))
+		        
 			return gl_entries
 
 	def get_gl_dict(self, args, account_currency=None, item=None):
