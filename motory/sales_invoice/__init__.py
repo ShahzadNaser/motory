@@ -30,10 +30,10 @@ def add(invoice=None):
         si.reference_id = params.get("reference_id")
         si.cost_center = "1004 - Marketing Services - ALJTech"
         if params.get("service_type") == "Marketing":
-            si.customer = "الايرادات من الاعلانت الخدمة الذاتية"
+            si.customer = "الإيرادات من الإعلانات الخدمة الذاتية"
         elif params.get("service_type") == "Valuation":
             si.customer = "Motory Vehicle Premium Valuation Service"
-        si.customer_details = "{}{}{}\n{} \n{}".format(params.get("customer_name_en"),"\n" if params.get("customer_name_ar") else "",params.get("customer_name_ar"),params.get("email"),params.get("cell_no"))
+        si.customer_details = "{}\n{} \n{}".format(params.get("customer_name_ar"),params.get("email"),params.get("cell_no"))
         si.append("items",{
             'item_code': "Marketing Services - خدمات التسويق",
             'item_name':"Marketing Services - خدمات التسويق",
