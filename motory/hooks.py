@@ -111,7 +111,8 @@ override_doctype_class = {
 doc_events = {
 	"Serial No": { 
 		"validate": "motory.api.update_car_status",
-		"before_save": "motory.api.bs_serial_no"
+		"after_insert": "motory.overrides.serial_no.update_serial_nos",
+		"on_update": "motory.overrides.serial_no.update_update"
 	},
 	"Stock Entry": { 
 		"validate": ["motory.api.fetch_accessories_inspection_details","motory.api.validate_serial_no_and_qty"],
