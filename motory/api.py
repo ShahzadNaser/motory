@@ -569,12 +569,6 @@ def add_payment(invoice=None):
 		frappe.log_error("Error on Creating Customer",frappe.get_traceback())
 		return {"success":False,"message":"Something went wroung please ask administrator to check logs"}
 
-def bs_serial_no(doc,method):
-	if doc.get("car_plate_no_cf"):
-		if frappe.db.get_value("GL Entry",{"remarks":str(doc.get("car_plate_no_cf"))},"name"):
-			frappe.db.sql(""" UPDATE `tabGL Entry` set serial_no='{}' where remarks='{}' """.format(str(doc.get("name")),str(doc.get("car_plate_no_cf"))))
-			frappe.db.commit()
-
 def get_post_params():
     return json.loads(frappe.request.data)
 
