@@ -11,6 +11,8 @@
   "account",
   "expense_account",
   "description",
+  "column_break_4",
+  "general_expense",
   "car_plate_no",
   "serial_no",
   "dimensions_section",
@@ -138,11 +140,21 @@
    "label": "Serial No",
    "options": "Serial No",
    "search_index": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "general_expense",
+   "fieldtype": "Check",
+   "label": "General Expense"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2024-09-03 15:15:47.332644",
+ "modified": "2024-10-09 09:48:24.413087",
  "modified_by": "Administrator",
  "module": "Motory",
  "name": "Expense Item",

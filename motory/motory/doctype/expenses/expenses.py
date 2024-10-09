@@ -18,7 +18,7 @@ class Expenses(Document):
 		self.total_taxes_and_charges = 0
 		cn_or_vin = True 
 		for row in self.get("expenses"):
-			if not row.get("car_plate_no") and not row.get("serial_no"):
+			if not row.get("car_plate_no") and not row.get("serial_no") and not row.get("general_expense"):
 				cn_or_vin = False
 			self.base_grand_total += flt(row.get("amount"))
 			if row.get("tax_rate"):
@@ -56,10 +56,11 @@ class Expenses(Document):
 	def update_serial_no(self,cancel=0):
 		update_dict = frappe._dict({})
 		for item in self.expenses:
-			if not update_dict.get(item.get("car_plate_no")):
-				update_dict[item.get("car_plate_no")] = item.get("net_amount") or 0
-			else:
-				update_dict[item.get("car_plate_no")] += item.get("net_amount") or 0
+			if item.get("car_plate_no"):
+				if not update_dict.get(item.get("car_plate_no")):
+					update_dict[item.get("car_plate_no")] = item.get("net_amount") or 0
+				else:
+					update_dict[item.get("car_plate_no")] += item.get("net_amount") or 0
 
 		for car_plate_no in update_dict:
 			expense = frappe.db.get_value('Serial No', {"car_plate_no_cf":car_plate_no}, 'total_expense_cf') or 0
