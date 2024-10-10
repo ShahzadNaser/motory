@@ -46,7 +46,7 @@ def add(invoice=None):
         si.set("payment_schedule",[])
         si.flags.ignore_permissions = 1
         si.insert()
-        si.submit()
+        # si.submit()
         frappe.db.commit()  # Commit to save the payment entry
         return {
                 "success":True,
