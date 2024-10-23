@@ -5,7 +5,7 @@ from frappe.utils import cint, comma_or, flt, getdate, nowdate
 from erpnext.accounts.doctype.invoice_discounting.invoice_discounting import (
 	get_party_account_based_on_invoice_discounting,
 )
-from erpnext.accounts.doctype.payment_entry.payment_entry import PaymentEntry,InvalidPaymentEntry
+from erpnext.accounts.doctype.payment_entry.payment_entry import PaymentEntry
 
 class CustomPaymentEntry(PaymentEntry):
     def validate_reference_documents(self):
@@ -66,23 +66,3 @@ class CustomPaymentEntry(PaymentEntry):
                 if d.allocated_amount \
                     and d.reference_doctype in ("Sales Order", "Purchase Order", "Employee Advance", "Gratuity", "Expenses"):
                         frappe.get_doc(d.reference_doctype, d.reference_name).set_total_advance_paid()
-
-    def validate_payment_against_negative_invoice(self):
-        return
-        if ((self.payment_type=="Pay" and self.party_type=="Customer")
-                or (self.payment_type=="Receive" and self.party_type=="Supplier")):
-
-            total_negative_outstanding = sum(abs(flt(d.outstanding_amount))
-                for d in self.get("references") if flt(d.outstanding_amount) < 0)
-
-            paid_amount = self.paid_amount if self.payment_type=="Receive" else self.received_amount
-            additional_charges = sum([flt(d.amount) for d in self.deductions])
-
-            if not total_negative_outstanding:
-                frappe.throw(_("Cannot {0} {1} {2} without any negative outstanding invoice")
-                    .format(self.payment_type, ("to" if self.party_type=="Customer" else "from"),
-                        self.party_type), InvalidPaymentEntry)
-
-            elif paid_amount - additional_charges > total_negative_outstanding:
-                frappe.throw(_("Paid Amount cannot be greater than total negative outstanding amount {0}")
-                    .format(total_negative_outstanding), InvalidPaymentEntry)
