@@ -25,6 +25,7 @@ def add(invoice=None):
         si.company = frappe.defaults.get_global_default("company")
         si.posting_date = getdate(params.get("invoice_date"))
         si.due_date = getdate(params.get("invoice_date"))
+        si.supply_date_cf = getdate(params.get("invoice_date"))
         si.update_stock = 0
         si.set_posting_time = 1
         si.reference_id = params.get("reference_id")
