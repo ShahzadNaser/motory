@@ -7,7 +7,11 @@
  "engine": "InnoDB",
  "field_order": [
   "damage_warehouse_type",
+  "column_break_2",
+  "return_vin_number_validation",
+  "car_accessories_detail_s_section",
   "car_accessories_detail",
+  "car_predelivery_inspection_checklist_s_section",
   "car_predelivery_inspection_checklist"
  ],
  "fields": [
@@ -22,23 +26,43 @@
   {
    "fieldname": "car_accessories_detail",
    "fieldtype": "Table",
-   "label": "Car Accessories Detail",
    "options": "Car Accessories Detail",
    "reqd": 1
   },
   {
    "fieldname": "car_predelivery_inspection_checklist",
    "fieldtype": "Table",
-   "label": "Car PreDelivery Inspection Checklist",
    "options": "Car PreDelivery Inspection Checklist",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "return_vin_number_validation",
+   "fieldtype": "Check",
+   "label": "Return VIN Number Validation"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "car_accessories_detail_s_section",
+   "fieldtype": "Section Break",
+   "label": "Car Accessories Detail"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "car_predelivery_inspection_checklist_s_section",
+   "fieldtype": "Section Break",
+   "label": "Car PreDelivery Inspection Checklist"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
  "migration_hash": "a0d13f293ba1a0129c1385aba306cec2",
- "modified": "2023-07-05 20:24:25.678231",
+ "modified": "2024-10-20 14:25:43.789789",
  "modified_by": "Administrator",
  "module": "Motory",
  "name": "Motory Settings",
