@@ -147,6 +147,7 @@ doc_events = {
 		"before_validate":["motory.api.copy_car_serial_to_vin","motory.monkey_patch.calculate_taxes_and_totals.patch"],
 		"validate": ["motory.api.validate_color","motory.api.validate_damaged_warehouse"],
 		"before_save": ["motory.api.before_save","motory.api.recalculate_taxes","motory.overrides.sales_invoice.before_save"],
+		"before_submit":"motory.overrides.sales_invoice.before_submit",
 		"on_submit":"motory.api.update_car_status",
 		"on_cancel": "motory.api.update_car_status"
 		},
