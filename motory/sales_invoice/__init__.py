@@ -11,8 +11,10 @@ def add(invoice=None):
     params = get_post_params()
     if not params:
         return {"success":False,"message":"No request payload found"}
-    if not params.get("service_type") or params.get("service_type") not in ["Marketing","Valuation"]:
-        return {"success":False,"message":"Service Type must be one of Marketing or Valuation"}
+    if not params.get("service_type"):
+        return {"success":False,"message":"Service Type is missing in payload"}
+    if not params.get("items"):
+        return {"success":False,"message":"Sales Items are missing in payload"}
     if not params.get("reference_id"):
         return {"success":False,"message":"Reference ID missing in payload"}
     if params.get("reference_id"):
@@ -29,20 +31,22 @@ def add(invoice=None):
         si.update_stock = 0
         si.set_posting_time = 1
         si.reference_id = params.get("reference_id")
+        si.service_type = params.get("service_type")
         si.cost_center = "1004 - Marketing Services - ALJTech"
-        if params.get("service_type") == "Marketing":
+        if params.get("service_type") and "Marketing" in str(params.get("service_type")):
             si.customer = "الإيرادات من الإعلانات الخدمة الذاتية"
-        elif params.get("service_type") == "Valuation":
+        elif params.get("service_type") and "Valuation" in params.get("service_type"):
             si.customer = "Motory Vehicle Premium Valuation Service"
         si.customer_details = "{}\n{} \n{}".format(params.get("customer_name_ar"),params.get("email"),params.get("cell_no"))
-        si.append("items",{
-            'item_code': "Marketing Services - خدمات التسويق",
-            'item_name':"Marketing Services - خدمات التسويق",
-            'uom':'Nos',
-            'qty':  1,
-            'rate':flt(flt(params.get("amount"))/1.15),
-            'item_tax_template': "B1 - KSA Sales VAT 15% - مبيعات"
-        })
+        for row in params.get("items",[]):            
+            si.append("items",{
+                'item_code': row.get("item_name"),
+                'item_name': row.get("item_name"),
+                'uom':'Nos',
+                'qty':  1,
+                'rate':flt(row.get("rate")),
+                'item_tax_template': "B1 - KSA Sales VAT 15% - مبيعات"
+            })
         si.taxes_and_charges = "B1 - Goods / Services Domestic Supply 15%"
         si.set("payment_schedule",[])
         si.flags.ignore_permissions = 1
