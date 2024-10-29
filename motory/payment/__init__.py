@@ -32,7 +32,7 @@ def add(invoice=None):
                 "customer_name_in_arabic": params.get("customer_name"),
                 "mobile_no": params.get("cell_no",""),
                 "email_id": params.get("email",""),
-                "customer_type": "Company" "Individual",
+                "customer_type": "Individual",
                 "customer_group": "All Customer Groups",
                 "territory": "All Territories",
                 "custom_b2c":  0 if params.get("customer_type")=="dealer" else 1
