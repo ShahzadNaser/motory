@@ -13,10 +13,8 @@ def add(invoice=None):
         return {"success":False,"message":"No request payload found"}
     if not params.get("customer_name") and not params.get("customer_name_en"):
         return {"success":False,"message":"Customer Name required in english and arabic."}
-    if params.get("customer_type")=="dealer" and not params.get("company_name") and not params.get("company_name_en"):
-        return {"success":False,"message":"Company Name required in english and arabic."}
-    if not params.get("mazad_user_id"):
-        return {"success":False,"message":"Mazad User ID must required."}
+    if not params.get("cell_no"):
+        return {"success":False,"message":"Cell Number is required."}
     if not params.get("amount"):
         return {"success":False,"message":"Amount is required."}
     if params.get("reference_id"):
@@ -26,24 +24,19 @@ def add(invoice=None):
         
     try:
         # Create the customer
-        party = frappe.db.get_value("Customer",{"mazad_user_id": params.get("mazad_user_id")},"name")
+        party = frappe.db.get_value("Customer",{"mobile_no": params.get("cell_no")},"name")
         if not party:
             customer = frappe.get_doc({
                 "doctype": "Customer",
-                "customer_name": params.get("company_name_en") or params.get("company_name") if params.get("customer_type")=="dealer" else params.get("customer_name_en") or params.get("customer_name"),
-                "customer_name_in_arabic": params.get("company_name") if params.get("customer_type")=="dealer" else params.get("customer_name"),
-                "iban": params.get("iban"),
-                "personal_id": params.get("national_id"),
-                "mazad_user_id": params.get("mazad_user_id"),
-                "commercial_number": params.get("cr_number"),
-                "customer_type": "Company" if params.get("customer_type")=="dealer" else "Individual",
+                "customer_name": params.get("customer_name_en") or params.get("customer_name"),
+                "customer_name_in_arabic": params.get("customer_name"),
+                "mobile_no": params.get("cell_no",""),
+                "email_id": params.get("email",""),
+                "customer_type": "Company" "Individual",
                 "customer_group": "All Customer Groups",
                 "territory": "All Territories",
                 "custom_b2c":  0 if params.get("customer_type")=="dealer" else 1
             })
-            if params.get("customer_type")=="dealer":
-                customer.representative = params.get("customer_name_en")
-                customer.representative_arabic = params.get("customer_name")
             customer.flags.ignore_permissions = 1
             customer.insert()
             frappe.db.commit()  # Commit to save the customer
