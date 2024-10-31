@@ -34,7 +34,9 @@ def add_marketing_invoice(invoice=None):
         si.service_type = params.get("service_type")
         si.cost_center = "1004 - Marketing Services - ALJTech"
         si.customer = "الإيرادات من الإعلانات الخدمة الذاتية"
-        si.customer_details = "{}\n{} \n{}".format(params.get("customer_name_ar"),params.get("email"),params.get("cell_no"))
+        si.sub_customer_en = params.get("customer_name_en","")
+        si.sub_customer_ar = params.get("customer_name_ar","")
+        si.customer_details = "{}\n{}".format(params.get("email"),str(params.get("cell_no")).replace("+",""))
         si.append("items",{
             'item_code': "Marketing Services",
             'item_name': "Marketing Services",
@@ -90,8 +92,9 @@ def add_valuation_invoice(invoice=None):
         si.service_type = params.get("service_type")
         si.cost_center = "1004 - Marketing Services - ALJTech"
         si.customer = "Motory Vehicle Premium Valuation Service"
-        si.customer_details = "{}\n{} \n{}".format(params.get("customer_name_ar"),params.get("email"),params.get("cell_no"))
-        for row in params.get("items",[]):            
+        si.sub_customer_en = params.get("customer_name_en","")
+        si.sub_customer_ar = params.get("customer_name_ar","")
+        si.customer_details = "{}\n{}".format(params.get("email"),str(params.get("cell_no")).replace("+",""))        for row in params.get("items",[]):            
             si.append("items",{
                 'item_code': row.get("item_name"),
                 'item_name': row.get("item_name"),
