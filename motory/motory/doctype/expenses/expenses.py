@@ -30,7 +30,7 @@ class Expenses(Document):
 		self.grand_total = flt(self.base_grand_total) + flt(self.total_taxes_and_charges)
 		self.outstanding_amount = flt(self.grand_total) - flt(self.advance_paid)
 
-		if not cn_or_vin:
+		if False and not cn_or_vin:
 			frappe.throw("Car Plate No. or Serial No must required in Expenses")
 
 	def before_submit(self):
