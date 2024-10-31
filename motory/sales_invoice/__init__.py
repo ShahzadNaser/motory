@@ -97,7 +97,7 @@ def add_valuation_invoice(invoice=None):
                 'item_name': row.get("item_name"),
                 'uom':'Nos',
                 'qty':  1,
-                'rate':flt(flt(params.get("rate"))/1.15),
+                'rate':flt(flt(row.get("rate"))/1.15),
                 'item_tax_template': "B1 - KSA Sales VAT 15% - مبيعات"
             })
         si.taxes_and_charges = "B1 - Goods / Services Domestic Supply 15%"
