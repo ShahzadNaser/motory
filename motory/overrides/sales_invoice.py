@@ -26,7 +26,9 @@ def before_save(doc,method):
             frappe.throw(error_msg)
 
 def before_submit(doc,method):
-    if not doc.get("tax_id") and not frappe.db.get_value("Customer",doc.get("customer"),"custom_b2c"):
-        doc.tax_id = frappe.db.get_value("Customer",doc.get("customer"),"tax_id") or ""
-        if not doc.get("tax_id"):
-            frappe.throw("Tax ID is not set for B2B Customer {}. Please set the Tax ID in the Customer.".format(doc.get("customer")))
+    if not doc.get("tax_id"):
+        customer_values = frappe.db.get_value("Customer",doc.get("customer"),["tax_id","territory","custom_b2c"],as_dict=True)
+        if customer_values.get("territory") != "Rest Of The World":
+            doc.tax_id = customer_values.get("tax_id")
+            if not doc.get("tax_id"):
+                frappe.throw("Tax ID is not set for B2B Customer {}. Please set the Tax ID in the Customer.".format(doc.get("customer")))
