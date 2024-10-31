@@ -36,8 +36,8 @@ def add_marketing_invoice(invoice=None):
         si.customer = "الإيرادات من الإعلانات الخدمة الذاتية"
         si.customer_details = "{}\n{} \n{}".format(params.get("customer_name_ar"),params.get("email"),params.get("cell_no"))
         si.append("items",{
-            'item_code': "Marketing Services - خدمات التسويق",
-            'item_name': "Marketing Services - خدمات التسويق",
+            'item_code': "Marketing Services",
+            'item_name': "Marketing Services",
             'uom':'Nos',
             'qty':  1,
             'rate':flt(flt(params.get("amount"))/1.15),
@@ -97,7 +97,7 @@ def add_valuation_invoice(invoice=None):
                 'item_name': row.get("item_name"),
                 'uom':'Nos',
                 'qty':  1,
-                'rate':flt(row.get("rate")),
+                'rate':flt(flt(params.get("amount"))/1.15),
                 'item_tax_template': "B1 - KSA Sales VAT 15% - مبيعات"
             })
         si.taxes_and_charges = "B1 - Goods / Services Domestic Supply 15%"
